@@ -252,9 +252,12 @@ def run(job: str, *, meta: MetaClient, store: SupabaseStore, only_account: str |
                     sync.sync_hourly(today - timedelta(days=1))
                 sync.sync_snapshots()
             elif job == "daily":
+                # Único cron do dia: re-sync dos últimos 7 dias (a Meta ajusta conversões
+                # retroativamente) + o parcial de hoje.
                 sync.sync_metadata()
-                sync.sync_daily(today - timedelta(days=7), today - timedelta(days=1))
+                sync.sync_daily(today - timedelta(days=7), today)
                 sync.sync_hourly(today - timedelta(days=1))
+                sync.sync_hourly(today)
                 sync.sync_snapshots()
             elif job == "backfill":
                 sync.sync_metadata()

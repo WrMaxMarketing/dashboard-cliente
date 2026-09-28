@@ -3,8 +3,10 @@ import type { TrafficContext } from "@/lib/traffic/data";
 import type { Alert } from "@/lib/traffic/metrics";
 import { AlertsBell } from "@/components/trafego/alerts-bell";
 import { ClientSwitcher } from "@/components/trafego/client-switcher";
+import { RefreshButton } from "@/components/trafego/refresh-button";
 
-const STALE_MIN = 45;
+// Sync automático é 1x/dia (+ botão Atualizar): âmbar só se passar de 26h.
+const STALE_MIN = 26 * 60;
 
 function liveState(ctx: TrafficContext, tz: string) {
   const last = ctx.sync.lastSuccess;
@@ -60,6 +62,7 @@ export function TrafficHeader({ ctx, alerts, title }: { ctx: TrafficContext; ale
           <span className="t-muted font-medium">· {live.text}</span>
         </div>)}
 
+        {ctx.client && ctx.accountIds.length > 0 && <RefreshButton clienteKey={ctx.client.cliente_key} />}
         <AlertsBell alerts={alerts} />
 
         <form action={signOut} className="t-noprint">

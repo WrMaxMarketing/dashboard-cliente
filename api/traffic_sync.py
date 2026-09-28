@@ -1,8 +1,8 @@
 """Vercel Python Function — /api/traffic_sync
 
-Disparada pelo Vercel Cron (ver vercel.json):
-  GET /api/traffic_sync?job=intraday   a cada 15 min  (hoje: horário + campanhas)
-  GET /api/traffic_sync?job=daily      madrugada      (re-sync dos últimos 7 dias)
+Disparada pelo Vercel Cron 1x por dia e pelo botão "Atualizar" do painel:
+  GET /api/traffic_sync?job=daily      04:30 Fortaleza (últimos 7 dias + hoje)
+  GET /api/traffic_sync?job=intraday   botão Atualizar (hoje: horário + campanhas)
 Manual (admin):
   GET /api/traffic_sync?job=backfill&since=YYYY-MM-DD&until=YYYY-MM-DD[&account=act_...]
   (para 90 dias completos prefira o CLI: scripts/traffic/run_sync.py backfill)

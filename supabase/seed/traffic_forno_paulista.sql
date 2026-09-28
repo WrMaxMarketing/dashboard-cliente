@@ -8,14 +8,18 @@
 --      da Forno no portal (confira com:
 --        select email, raw_app_meta_data->>'cliente' from auth.users;
 --      ou `node --env-file=.env.local scripts/create-client-user.mjs --list`).
---   2. meta_roas / meta_cpa ficam NULL até a WRMax definir — o painel mostra "—".
+--   2. Metas definidas pela WRMax em 28/09/2026:
+--        meta_roas = 20,34 (= ROAS da unidade Sul/Valter Alencar nos últimos 30 dias)
+--        meta_cpa  = R$ 6,00
 -- =============================================================================
 
 INSERT INTO public.traffic_clients (cliente_key, nome, verba_mensal, meta_roas, meta_cpa, fuso)
-VALUES ('Forno Paulista', 'Forno Paulista', 10000.00, NULL, NULL, 'America/Fortaleza')
+VALUES ('Forno Paulista', 'Forno Paulista', 10000.00, 20.34, 6.00, 'America/Fortaleza')
 ON CONFLICT (cliente_key) DO UPDATE
   SET nome = EXCLUDED.nome,
       verba_mensal = EXCLUDED.verba_mensal,
+      meta_roas = EXCLUDED.meta_roas,
+      meta_cpa = EXCLUDED.meta_cpa,
       fuso = EXCLUDED.fuso,
       updated_at = now();
 

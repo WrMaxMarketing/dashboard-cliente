@@ -7,7 +7,9 @@
     }
   },
   "crons": [
-    { "path": "/api/traffic_sync?job=intraday", "schedule": "*/15 * * * *" },
-    { "path": "/api/traffic_sync?job=daily", "schedule": "30 7 * * *" }
+    {
+      "path": "/api/traffic_sync?job=daily",
+      "schedule": "30 7 * * *"
+    }
   ]
 }

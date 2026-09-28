@@ -182,7 +182,20 @@ export default async function TrafegoOverview({ searchParams }: { searchParams: 
           delta={delta(cur.purchases, prev.purchases, "up_good")}
           sub={
             <span className="flex flex-wrap items-center gap-x-1.5">
-              CPA <b style={{ color: "var(--t-champagne)" }}>{fmtBRL(cur.cpa)}</b>
+              CPA{" "}
+              <b
+                style={{
+                  color:
+                    client.meta_cpa && cur.cpa != null
+                      ? cur.cpa <= client.meta_cpa
+                        ? "var(--t-gold-light)"
+                        : "var(--t-critical)"
+                      : "var(--t-champagne)",
+                }}
+              >
+                {fmtBRL(cur.cpa)}
+              </b>
+              {client.meta_cpa ? <span>· meta {fmtBRL(client.meta_cpa)}</span> : null}
               <DeltaBadge d={delta(cur.cpa, prev.cpa, "down_good")} suffix="" />
             </span>
           }
