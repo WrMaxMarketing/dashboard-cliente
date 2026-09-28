@@ -1,0 +1,180 @@
+/* Tema dourado do Painel de Tráfego — ESCOPADO em .trafego-root.
+   Não altera tokens nem estilos do resto do portal. */
+
+.trafego-root {
+  --t-bg: #07070a;
+  --t-surface: #0e0e12;
+  --t-raised: #15151b;
+  --t-gold: #d4af37;
+  --t-gold-light: #f5d27a;
+  --t-gold-deep: #8c6a1f;
+  --t-champagne: #e8dcc0;
+  --t-text: #f2f2f2;
+  --t-muted: #8a8a93;
+  --t-amber: #f0a202;
+  --t-critical: #e5484d;
+  --t-border: rgba(212, 175, 55, 0.28);
+  --t-border-soft: rgba(212, 175, 55, 0.14);
+  --t-glow: 0 0 18px rgba(212, 175, 55, 0.25);
+  --t-grid: rgba(232, 220, 192, 0.07);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background-color: var(--t-bg);
+  color: var(--t-text);
+  color-scheme: dark;
+  font-family: var(--font-t-body), system-ui, sans-serif;
+  /* espaço para a navegação inferior fixa */
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+/* Malha decorativa de pontos/linhas douradas, baixa opacidade */
+.trafego-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(rgba(212, 175, 55, 0.16) 1px, transparent 1.2px),
+    linear-gradient(115deg, transparent 49.6%, rgba(212, 175, 55, 0.05) 50%, transparent 50.4%),
+    linear-gradient(35deg, transparent 49.6%, rgba(212, 175, 55, 0.04) 50%, transparent 50.4%);
+  background-size: 26px 26px, 340px 340px, 460px 460px;
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+.trafego-root .t-display {
+  font-family: var(--font-t-display), var(--font-t-body), sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.trafego-root .t-card {
+  background: linear-gradient(180deg, rgba(21, 21, 27, 0.92), rgba(14, 14, 18, 0.92));
+  border: 1px solid var(--t-border);
+  border-radius: 16px;
+  box-shadow: var(--t-glow), inset 0 1px 0 rgba(245, 210, 122, 0.06);
+}
+
+.trafego-root .t-card-flat {
+  background: var(--t-surface);
+  border: 1px solid var(--t-border-soft);
+  border-radius: 14px;
+}
+
+.trafego-root .t-glow-text {
+  color: var(--t-gold-light);
+  text-shadow: 0 0 14px rgba(245, 210, 122, 0.35);
+}
+
+.trafego-root .t-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--t-muted);
+}
+
+.trafego-root .t-muted { color: var(--t-muted); }
+.trafego-root .t-gold { color: var(--t-gold); }
+.trafego-root .t-good { color: var(--t-gold-light); }
+.trafego-root .t-bad { color: var(--t-critical); }
+.trafego-root .t-warn { color: var(--t-amber); }
+.trafego-root .t-neutral { color: var(--t-champagne); }
+
+.trafego-root .t-pill {
+  border: 1px solid var(--t-border-soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t-muted);
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.trafego-root .t-pill:hover { color: var(--t-text); border-color: var(--t-border); }
+.trafego-root .t-pill[aria-current="true"] {
+  color: #0e0e12;
+  background: linear-gradient(180deg, var(--t-gold-light), var(--t-gold));
+  border-color: var(--t-gold);
+  box-shadow: var(--t-glow);
+}
+
+.trafego-root .t-input {
+  background: var(--t-raised);
+  border: 1px solid var(--t-border-soft);
+  border-radius: 10px;
+  color: var(--t-text);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.trafego-root .t-input:focus-visible,
+.trafego-root a:focus-visible,
+.trafego-root button:focus-visible,
+.trafego-root summary:focus-visible {
+  outline: 2px solid var(--t-gold-light);
+  outline-offset: 2px;
+}
+
+.trafego-root .t-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(232, 220, 192, 0.08);
+  overflow: hidden;
+}
+.trafego-root .t-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--t-gold-deep), var(--t-gold), var(--t-gold-light));
+}
+
+/* Pulso do selo AO VIVO */
+@keyframes t-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 210, 122, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(245, 210, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 210, 122, 0); }
+}
+.trafego-root .t-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--t-gold-light);
+  animation: t-pulse 1.8s infinite;
+}
+.trafego-root .t-live-dot[data-stale="true"] { background: var(--t-amber); animation: none; }
+.trafego-root .t-live-dot[data-error="true"] { background: var(--t-critical); animation: none; }
+
+.trafego-root table.t-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.trafego-root table.t-table th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--t-raised);
+  color: var(--t-muted);
+  font-weight: 600; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: right; padding: 10px 12px; white-space: nowrap;
+  border-bottom: 1px solid var(--t-border);
+}
+.trafego-root table.t-table th:first-child,
+.trafego-root table.t-table td:first-child { text-align: left; }
+.trafego-root table.t-table td {
+  padding: 9px 12px; text-align: right; white-space: nowrap;
+  border-bottom: 1px solid rgba(232, 220, 192, 0.06);
+  font-variant-numeric: tabular-nums;
+}
+.trafego-root table.t-table tr:hover td { background: rgba(212, 175, 55, 0.04); }
+
+.trafego-root .recharts-tooltip-cursor { stroke: rgba(245, 210, 122, 0.35); }
+
+@media (prefers-reduced-motion: reduce) {
+  .trafego-root .t-live-dot { animation: none; }
+}
+
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body { background: #07070a !important; }
+  .trafego-root { padding-bottom: 0; min-height: auto; }
+  .trafego-root, .trafego-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .trafego-root .t-noprint { display: none !important; }
+  .trafego-root .t-card { box-shadow: none; break-inside: avoid; }
+  .trafego-root::before { display: none; }
+}
