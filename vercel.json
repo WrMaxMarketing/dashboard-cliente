@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/traffic_sync.py": {
+      "maxDuration": 300,
+      "excludeFiles": "{.next,node_modules,public,app,components,lib,supabase,tests,docs}/**"
+    }
+  },
+  "crons": [
+    { "path": "/api/traffic_sync?job=intraday", "schedule": "*/15 * * * *" },
+    { "path": "/api/traffic_sync?job=daily", "schedule": "30 7 * * *" }
+  ]
+}
