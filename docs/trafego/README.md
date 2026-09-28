@@ -5,7 +5,7 @@ Seção nova do Portal do Cliente. Mostra os resultados de Meta Ads de cada clie
 ```
 Meta Marketing API ──(Python, service role)──► Supabase traffic_* ──(RLS, sessão do usuário)──► /trafego
         ▲                                                                     
-  Vercel Cron: /api/traffic_sync?job=intraday (15 min) · job=daily (04:30 Fortaleza)
+  Vercel Cron 1x/dia: /api/traffic_sync?job=daily (04:30 Fortaleza) · botão Atualizar: job=intraday
 ```
 
 | Parte | Onde |
@@ -55,20 +55,20 @@ Rode da sua máquina (o backfill pode passar do limite de tempo da função):
 export META_SYSTEM_USER_TOKEN=... NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=...
 python3 scripts/meta/validate_meta_access.py            # Etapa 1: confirma acesso e action_types
 python3 scripts/traffic/run_sync.py backfill            # 90 dias, todas as contas ativas
-python3 scripts/traffic/run_sync.py intraday            # hoje + metadados + frequência 7d
+python3 scripts/traffic/run_sync.py daily               # 7 dias + hoje + metadados + frequência 7d
 ```
 O backfill usa *async report jobs* da Meta em blocos de 15 dias e respeita os headers de uso (`x-business-use-case-usage`).
 
-### 1.4 Crons
+### 1.4 Atualização dos dados
 
-O `vercel.json` registra:
-- `*/15 * * * *` → `job=intraday`: hoje por dia e por hora, metadados e frequência 7d. Até 3h da manhã também refaz ontem.
-- `30 7 * * *` (04:30 em Fortaleza) → `job=daily`: re-sync dos últimos 7 dias (a Meta ajusta conversões retroativamente) e as horas de ontem.
-
-⚠️ **Plano Hobby da Vercel aceita no máximo 1 cron por dia.** O de 15 min exige Pro. A Vercel **só executa crons em deploys de produção**. No preview, dispare manualmente:
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" "https://<preview>.vercel.app/api/traffic_sync?job=intraday"
-```
+- **Automática, 1 vez por dia** (`vercel.json`): `30 7 * * *` (04:30 em Fortaleza) → `job=daily`. Refaz os últimos 7 dias (a Meta ajusta conversões retroativamente), inclui o parcial de hoje (por dia e por hora) e atualiza metadados e frequência 7d. Compatível com o plano Hobby.
+- **Manual, pelo botão ⟳ "Atualizar"** no topo do painel: `POST /trafego/atualizar`. Exige sessão, confere pela RLS se o usuário enxerga a conta e aceita 1 atualização a cada 5 min por cliente. O servidor chama `/api/traffic_sync?job=intraday` com o `CRON_SECRET`; o navegador nunca fala com a Meta.
+- Em **previews** protegidos por *Vercel Authentication*, ative *Protection Bypass for Automation* no projeto para o botão funcionar: a Vercel cria `VERCEL_AUTOMATION_BYPASS_SECRET` e a rota o envia sozinha.
+- A Vercel só executa **crons em produção**. No preview use o botão ou:
+  ```bash
+  curl -H "Authorization: Bearer $CRON_SECRET" "https://<preview>.vercel.app/api/traffic_sync?job=daily"
+  ```
+- O selo "AO VIVO · atualizado às HH:MM" mostra o último sync com sucesso. Fica âmbar após 26h sem sync e vermelho se o último sync falhou.
 
 ---
 
@@ -140,4 +140,4 @@ Para desativar: `update traffic_clients set ativo = false where cliente_key = 'T
 - **Períodos** no fuso do cliente. "7d/14d/30d" incluem hoje (parcial). "Hoje" compara com ontem até a mesma hora. Se o período anterior não tem dados em pelo menos metade dos dias, a variação aparece como "—".
 - **Saúde da conta (0–100)**: média de ROAS vs meta, ritmo da verba (0 com desvio ≥ 30%), frequência 7d (100 com ≤ 2,5, 0 com ≥ 4,5) e CTR vs média de 90 dias. Componentes sem dado ficam de fora da média.
 - **Alertas** (sino): ROAS de hoje abaixo da meta · gasto do mês > 15% acima do ideal · conjunto ativo com frequência 7d > 3,5 · campanha com gasto e zero compras entre ontem e hoje · erro no último sync.
-- **"AO VIVO · atualizado às HH:MM"** = fim do último sync com sucesso. Fica âmbar se passar de 45 min e vermelho se o último sync falhou.
+- **"AO VIVO · atualizado às HH:MM"** = fim do último sync com sucesso. Fica âmbar após 26h e vermelho se o último sync falhou.
