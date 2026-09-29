@@ -33,6 +33,7 @@ Nada existente no portal foi alterado: rotas, componentes, `middleware.ts`, tabe
 | `META_SYSTEM_USER_TOKEN` | **nova**: token do Usuário do Sistema do BM | só servidor |
 | `CRON_SECRET` | **nova**: string aleatória longa. A Vercel envia `Authorization: Bearer $CRON_SECRET` nos crons | só servidor |
 | `META_GRAPH_VERSION` | opcional (padrão `v23.0`) | só servidor |
+| `TRAFFIC_SYNC_BASE_URL` | opcional: URL base usada pelo botão Atualizar. Na Vercel não precisa (usa `VERCEL_URL`); obrigatória se rodar fora da Vercel | só servidor |
 
 Nunca commite essas chaves. O `.env*` já está no `.gitignore`.
 
@@ -137,7 +138,7 @@ Para desativar: `update traffic_clients set ativo = false where cliente_key = 'T
 - **CTR e CPC** são de **clique no link** (`inline_link_clicks`). CPM = investimento ÷ impressões × 1000.
 - **Frequência 7d**: recorte de 7 dias pedido pronto à Meta (alcance não soma por dia). Alerta de fadiga acima de 3,5 em conjuntos ativos.
 - **Atribuição**: `use_account_attribution_setting=true`, igual ao Gerenciador de Anúncios.
-- **Períodos** no fuso do cliente. "7d/14d/30d" incluem hoje (parcial). "Hoje" compara com ontem até a mesma hora. Se o período anterior não tem dados em pelo menos metade dos dias, a variação aparece como "—".
+- **Períodos** no fuso do cliente. "7d/14d/30d" são dias completos até ontem, como no Gerenciador de Anúncios. "Hoje" e "Mês atual" incluem o parcial de hoje. "Hoje" compara com ontem até a hora do último sync. O ritmo da verba é medido no instante do último sync. Se o período anterior não tem dados em pelo menos metade dos dias, a variação aparece como "—".
 - **Saúde da conta (0–100)**: média de ROAS vs meta, ritmo da verba (0 com desvio ≥ 30%), frequência 7d (100 com ≤ 2,5, 0 com ≥ 4,5) e CTR vs média de 90 dias. Componentes sem dado ficam de fora da média.
-- **Alertas** (sino): ROAS de hoje abaixo da meta · gasto do mês > 15% acima do ideal · conjunto ativo com frequência 7d > 3,5 · campanha com gasto e zero compras entre ontem e hoje · erro no último sync.
+- **Alertas** (sino): ROAS de hoje abaixo da meta · gasto do mês > 15% acima do ideal · conjunto ativo com frequência 7d > 3,5 · campanha **ativa** com gasto ≥ max(R$ 20, 2× meta de CPA) e zero compras de anteontem até hoje (≥ 48h) · erro no último sync.
 - **"AO VIVO · atualizado às HH:MM"** = fim do último sync com sucesso. Fica âmbar após 26h e vermelho se o último sync falhou.
