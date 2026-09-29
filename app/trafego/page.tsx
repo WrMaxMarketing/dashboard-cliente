@@ -64,28 +64,35 @@ export default async function TrafegoOverview({ searchParams }: { searchParams: 
   const cur = derive(sumRows(curRows));
 
   // "Hoje" compara com ontem ATÉ A MESMA HORA (se houver dado por hora de ontem).
-  const yHourly = hourly.filter((h) => h.date === addDays(period.today, -1) && h.hour <= period.nowHour);
+  // Os números de hoje valem até o último sync; compara com ontem até a MESMA hora.
+  const asOfToday = pulse.asOf && pulse.asOf.date === period.today ? pulse.asOf : null;
+  const asOfLabel = asOfToday ? `${String(asOfToday.hour).padStart(2, "0")}:${String(asOfToday.minute).padStart(2, "0")}` : "";
+  const yHourly = asOfToday
+    ? hourly.filter((h) => h.date === addDays(period.today, -1) && h.hour <= asOfToday.hour)
+    : [];
   const prevRaw =
     period.hourly && yHourly.length
       ? hourlyTotals(yHourly)
       : sumRows(acctRows.filter((r) => inRange(r.date, period.prevSince, period.prevUntil)));
   // Sem dado em pelo menos metade dos dias do período anterior => não comparamos (evita % enganoso).
   const prevDays = daysBetween(period.prevSince, period.prevUntil) + 1;
-  const prevOk = period.hourly ? prevRaw.days > 0 : prevRaw.days >= Math.ceil(prevDays / 2);
+  const prevOk = period.hourly ? asOfToday != null && prevRaw.days > 0 : prevRaw.days >= Math.ceil(prevDays / 2);
   const prev = derive(prevOk ? prevRaw : { ...emptyTotals(), spend: NaN, purchase_value: NaN, purchases: NaN, impressions: NaN, link_clicks: NaN });
   const prevLabel = !prevOk
-    ? "indisponíveis: o período anterior ainda não tem dados sincronizados"
+    ? period.hourly && !asOfToday
+      ? "indisponíveis: ainda não houve atualização hoje (use o botão ⟳)"
+      : "indisponíveis: o período anterior ainda não tem dados sincronizados"
     : !period.hourly
-    ? "vs período anterior"
-    : yHourly.length
-      ? "vs ontem até esta hora"
-      : "vs ontem (dia inteiro — o dado por hora de ontem ainda não foi sincronizado)";
+      ? "vs período anterior"
+      : yHourly.length
+        ? `vs ontem até ${asOfLabel} (horário do último sync)`
+        : "vs ontem (dia inteiro — o dado por hora de ontem ainda não foi sincronizado)";
 
   // ---------- gráfico principal
   let chart: ChartPoint[];
   if (period.hourly) {
     const today = hourly.filter((h) => h.date === period.today);
-    chart = Array.from({ length: period.nowHour + 1 }, (_, h) => {
+    chart = Array.from({ length: (asOfToday?.hour ?? period.nowHour) + 1 }, (_, h) => {
       const rows = today.filter((r) => r.hour === h);
       return {
         label: `${String(h).padStart(2, "0")}h`,
@@ -272,7 +279,7 @@ export default async function TrafegoOverview({ searchParams }: { searchParams: 
                 : `${pace.state === "adiantado" ? "Adiantado" : "Atrasado"} ${fmtPct(Math.abs((pace.deviation ?? 0) * 100), 0)}`}
           </p>
           <p className="t-muted text-center text-[11px]">
-            Ideal hoje: {fmtPct(pace.pctMonth * 100, 0)} do mês (marca clara no anel)
+            Ideal no último sync: {fmtPct(pace.pctMonth * 100, 0)} do mês (marca clara no anel)
           </p>
         </div>
       </section>

@@ -154,6 +154,7 @@ export async function getDaily(
       .gte("date", since)
       .lte("date", until)
       .order("date")
+      .order("account_id")
       .order("campaign_id")
       .order("adset_id")
       .order("ad_id")

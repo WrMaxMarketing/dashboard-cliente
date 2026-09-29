@@ -26,12 +26,19 @@ export type Period = {
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
-export function todayIn(tz: string, now = new Date()): { date: string; hour: number } {
+/** Data ISO real (rejeita 2026-02-31, 9999-99-99 etc.). */
+export function isIsoDate(s: string | undefined): s is string {
+  if (!s || !ISO.test(s)) return false;
+  const d = new Date(`${s}T12:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+}
+
+export function todayIn(tz: string, now = new Date()): { date: string; hour: number; minute: number } {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
+    timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
   }).formatToParts(now);
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "00";
-  return { date: `${get("year")}-${get("month")}-${get("day")}`, hour: Number(get("hour")) };
+  return { date: `${get("year")}-${get("month")}-${get("day")}`, hour: Number(get("hour")), minute: Number(get("minute")) };
 }
 
 export function addDays(iso: string, n: number): string {
@@ -77,14 +84,17 @@ export function resolvePeriod(
     case "7d":
     case "14d":
     case "30d":
-      since = addDays(today, -(parseInt(key, 10) - 1));
+      // Últimos N dias COMPLETOS (até ontem), como no Gerenciador de Anúncios:
+      // incluir o parcial de hoje puxaria a comparação para baixo.
+      until = addDays(today, -1);
+      since = addDays(today, -parseInt(key, 10));
       break;
     case "mes":
       since = monthStart(today);
       break;
     case "custom": {
-      let a = sp.de && ISO.test(sp.de) ? sp.de : addDays(today, -6);
-      let b = sp.ate && ISO.test(sp.ate) ? sp.ate : today;
+      let a = isIsoDate(sp.de) ? sp.de : addDays(today, -6);
+      let b = isIsoDate(sp.ate) ? sp.ate : today;
       if (a > b) [a, b] = [b, a];
       if (b > today) b = today;
       if (a > b) a = b;

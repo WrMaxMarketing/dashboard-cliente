@@ -1,6 +1,7 @@
 """Cliente mínimo da Meta Marketing API (Graph) com rate limit e async jobs."""
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import time
@@ -32,9 +33,15 @@ class RateLimited(MetaError):
 
 
 def usage_from_headers(headers: Any) -> tuple[float, int]:
-    """Retorna (maior % de uso, minutos p/ recuperar acesso) dos headers de uso."""
+    """Retorna (maior % de uso, SEGUNDOS até recuperar acesso) dos headers de uso.
+
+    - x-business-use-case-usage: estimated_time_to_regain_access vem em MINUTOS e só
+      é > 0 quando a conta está bloqueada.
+    - x-ad-account-usage: reset_time_duration vem em SEGUNDOS e aparece SEMPRE (é o
+      tamanho da janela); só indica bloqueio quando acc_id_util_pct >= 100.
+    """
     top_pct = 0.0
-    regain_min = 0
+    regain_s = 0
     for name in ("x-business-use-case-usage", "x-ad-account-usage", "x-app-usage"):
         raw = headers.get(name) if headers else None
         if not raw:
@@ -51,14 +58,18 @@ def usage_from_headers(headers: Any) -> tuple[float, int]:
         elif isinstance(data, dict):
             entries.append(data)
         for e in entries:
-            for k in ("call_count", "total_cputime", "total_time", "acc_id_util_pct", "call_volume"):
+            for k in ("call_count", "total_cputime", "total_time", "acc_id_util_pct"):
                 v = e.get(k)
                 if isinstance(v, (int, float)):
                     top_pct = max(top_pct, float(v))
-            regain = e.get("estimated_time_to_regain_access") or e.get("reset_time_duration") or 0
-            if isinstance(regain, (int, float)):
-                regain_min = max(regain_min, int(regain))
-    return top_pct, regain_min
+            minutes = e.get("estimated_time_to_regain_access")
+            if isinstance(minutes, (int, float)) and minutes > 0:
+                regain_s = max(regain_s, int(minutes * 60))
+            util = e.get("acc_id_util_pct")
+            reset = e.get("reset_time_duration")
+            if isinstance(util, (int, float)) and util >= 100 and isinstance(reset, (int, float)) and reset > 0:
+                regain_s = max(regain_s, int(reset))
+    return top_pct, regain_s
 
 
 class MetaClient:
@@ -76,6 +87,7 @@ class MetaClient:
         self.sleep = sleep
         self.opener = opener or urllib.request.urlopen
         self.log = log
+        self.pause_until = 0.0  # monotonic: não chamar a Meta antes disso
 
     # ------------------------------------------------------------ baixo nível
     def _remaining(self) -> float:
@@ -96,6 +108,10 @@ class MetaClient:
         url = path if path.startswith("http") else f"{BASE}/{path.lstrip('/')}"
         delay = 2.0
         for attempt in range(retries + 1):
+            # Pausa pedida pela resposta ANTERIOR (a resposta que deu certo é aproveitada).
+            gap = self.pause_until - time.monotonic()
+            if gap > 0:
+                self._wait(gap, "respeitando o limite de uso da Meta")
             if method == "GET":
                 req = urllib.request.Request(f"{url}?{encoded}" if "?" not in url else url, method="GET")
             else:
@@ -103,11 +119,11 @@ class MetaClient:
             try:
                 with self.opener(req, timeout=90) as resp:
                     body = json.loads(resp.read().decode("utf-8"))
-                    pct, regain = usage_from_headers(resp.headers)
-                    if regain > 0:
-                        self._wait(regain * 60, f"uso da API bloqueado por {regain} min")
+                    pct, regain_s = usage_from_headers(resp.headers)
+                    if regain_s > 0:
+                        self.pause_until = time.monotonic() + regain_s
                     elif pct >= USAGE_PAUSE_PCT:
-                        self._wait(min(60.0, 10 + pct / 2), f"uso da API em {pct:.0f}%")
+                        self.pause_until = time.monotonic() + min(60.0, 10 + pct / 2)
                     return body
             except urllib.error.HTTPError as e:
                 raw = e.read().decode("utf-8", "replace")
@@ -124,12 +140,13 @@ class MetaClient:
                     continue
                 cls = RateLimited if code in RATE_LIMIT_CODES else MetaError
                 raise cls(msg, code, err.get("error_subcode")) from None
-            except urllib.error.URLError as e:
+            except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException) as e:
+                reason = getattr(e, "reason", None) or e
                 if attempt < retries:
-                    self._wait(delay, f"falha de rede ({e.reason})")
+                    self._wait(delay, f"falha de rede ({reason})")
                     delay *= 2
                     continue
-                raise MetaError(f"falha de rede: {e.reason}") from None
+                raise MetaError(f"falha de rede: {reason}") from None
         raise MetaError("tentativas esgotadas")
 
     def get(self, path: str, params: dict | None = None) -> dict:

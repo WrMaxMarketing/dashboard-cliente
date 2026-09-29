@@ -9,6 +9,8 @@ const LEVELS = ["account", "campaign", "adset", "ad"] as const;
 
 // CSV pt-BR: ";" como separador, vírgula decimal, BOM para o Excel reconhecer UTF-8.
 const dec = (v: number | null, d = 2) => (v == null ? "" : v.toFixed(d).replace(".", ","));
+// Nomes vêm da Meta: neutraliza fórmulas (=, +, -, @) ao abrir no Excel.
+const text = (v: string | null | undefined) => (v && /^[=+\-@\t\r]/.test(v) ? `'${v}` : v ?? "");
 const cell = (v: string | number | null | undefined) => {
   const s = v == null ? "" : String(v);
   return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -45,8 +47,8 @@ export async function GET(req: NextRequest) {
     const m = derive(sumRows([r]));
     lines.push(
       [
-        r.date, r.account_id, r.campaign_id, cName.get(r.campaign_id) ?? "", r.adset_id, sName.get(r.adset_id) ?? "",
-        r.ad_id, aName.get(r.ad_id) ?? "", r.unidade ?? "",
+        r.date, r.account_id, r.campaign_id, text(cName.get(r.campaign_id)), r.adset_id, text(sName.get(r.adset_id)),
+        r.ad_id, text(aName.get(r.ad_id)), text(r.unidade),
         dec(r.spend), r.impressions, r.reach ?? "", dec(r.frequency, 4), r.clicks, r.link_clicks, dec(m.ctr, 4), dec(m.cpc),
         dec(m.cpm), r.landing_page_views, r.view_content, r.add_to_cart, r.initiate_checkout, r.purchases,
         dec(r.purchase_value), dec(m.roas, 4), dec(m.cpa),

@@ -1,7 +1,9 @@
 """Acesso ao Supabase via PostgREST com a service role (só servidor)."""
 from __future__ import annotations
 
+import http.client
 import json
+import time
 import os
 import urllib.error
 import urllib.parse
@@ -35,13 +37,22 @@ class SupabaseStore:
         if prefer:
             headers["Prefer"] = prefer
         data = json.dumps(body, default=str).encode() if body is not None else None
-        req = urllib.request.Request(url, data=data, headers=headers, method=method)
-        try:
-            with self.opener(req, timeout=60) as resp:
-                raw = resp.read().decode("utf-8")
-                return json.loads(raw) if raw else None
-        except urllib.error.HTTPError as e:
-            raise StoreError(f"{method} {table}: HTTP {e.code} {e.read().decode('utf-8', 'replace')[:500]}") from None
+        for attempt in range(4):
+            req = urllib.request.Request(url, data=data, headers=headers, method=method)
+            try:
+                with self.opener(req, timeout=60) as resp:
+                    raw = resp.read().decode("utf-8")
+                    return json.loads(raw) if raw else None
+            except urllib.error.HTTPError as e:
+                if e.code >= 500 and attempt < 3:
+                    time.sleep(2 ** attempt)
+                    continue
+                raise StoreError(f"{method} {table}: HTTP {e.code} {e.read().decode('utf-8', 'replace')[:500]}") from None
+            except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException) as e:
+                if attempt < 3:
+                    time.sleep(2 ** attempt)
+                    continue
+                raise StoreError(f"{method} {table}: falha de rede {getattr(e, 'reason', e)}") from None
 
     def select(self, table: str, query: dict) -> list[dict]:
         return self._call("GET", table, query=query) or []
@@ -60,6 +71,16 @@ class SupabaseStore:
                 prefer="resolution=merge-duplicates,return=minimal",
             )
         return len(norm)
+
+    def insert_ignore(self, table: str, rows: list[dict], on_conflict: str) -> int:
+        """Insere só o que não existe (não sobrescreve metadados já sincronizados)."""
+        if not rows:
+            return 0
+        keys = sorted({k for r in rows for k in r})
+        self._call("POST", table, query={"on_conflict": on_conflict},
+                   body=[{k: r.get(k) for k in keys} for r in rows],
+                   prefer="resolution=ignore-duplicates,return=minimal")
+        return len(rows)
 
     def insert_returning(self, table: str, row: dict) -> dict:
         out = self._call("POST", table, body=row, prefer="return=representation")

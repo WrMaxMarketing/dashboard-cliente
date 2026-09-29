@@ -113,6 +113,15 @@ class TransformTests(unittest.TestCase):
                                                                  "estimated_time_to_regain_access": 0}]})}
         self.assertEqual(usage_from_headers(hdr), (91.0, 0))
 
+    def test_ad_account_usage_is_seconds_and_only_when_blocked(self):
+        # reset_time_duration vem SEMPRE e em segundos: com uso baixo não é bloqueio.
+        low = {"x-ad-account-usage": json.dumps({"acc_id_util_pct": 3.2, "reset_time_duration": 40})}
+        self.assertEqual(usage_from_headers(low), (3.2, 0))
+        full = {"x-ad-account-usage": json.dumps({"acc_id_util_pct": 100, "reset_time_duration": 40})}
+        self.assertEqual(usage_from_headers(full), (100.0, 40))
+        buc = {"x-business-use-case-usage": json.dumps({"1": [{"call_count": 100, "estimated_time_to_regain_access": 2}]})}
+        self.assertEqual(usage_from_headers(buc), (100.0, 120))
+
 
 # ------------------------------------------------------------------ Meta fake
 class FakeResp:
@@ -203,7 +212,9 @@ class FakeMeta:
             d = tr["since"]
             rows = {
                 "account": [_ins({"account_id": "1", "date_start": d}, spend="300")],
-                "campaign": [_ins({"campaign_id": "c1", "date_start": d}),
+                "campaign": [_ins({"campaign_id": "c9", "campaign_name": "[ARQUIVADA] [DOM SEVERINO] promo", "date_start": d},
+                                  spend="1", purchases="0", value="0"),
+                             _ins({"campaign_id": "c1", "date_start": d}),
                              _ins({"campaign_id": "c2", "date_start": d}, spend="200", purchases="0", value="0")],
                 "adset": [_ins({"campaign_id": "c1", "adset_id": "s1", "date_start": d})],
                 "ad": [_ins({"campaign_id": "c1", "adset_id": "s1", "ad_id": "a1", "date_start": d})],
@@ -214,6 +225,25 @@ class FakeMeta:
 
 
 class MetaClientTests(unittest.TestCase):
+    def test_success_with_usage_header_is_kept(self):
+        """Achado da revisão: resposta OK com x-ad-account-usage normal não pode virar RateLimited."""
+        import time as _t
+        hdr = {"x-ad-account-usage": json.dumps({"acc_id_util_pct": 3.2, "reset_time_duration": 40})}
+        opener = lambda req, timeout=None: FakeResp({"data": [{"id": "x"}]}, headers=hdr)  # noqa: E731
+        cli = MetaClient("t", opener=opener, sleep=lambda s: None, deadline=_t.monotonic() + 270, log=lambda *_: None)
+        self.assertEqual(cli.get("act_1/campaigns")["data"][0]["id"], "x")
+        self.assertEqual(cli.get("act_1/campaigns")["data"][0]["id"], "x")
+
+    def test_block_pauses_next_call_not_current(self):
+        slept = []
+        hdr = {"x-business-use-case-usage": json.dumps({"1": [{"call_count": 100, "estimated_time_to_regain_access": 1}]})}
+        opener = lambda req, timeout=None: FakeResp({"ok": 1}, headers=hdr)  # noqa: E731
+        cli = MetaClient("t", opener=opener, sleep=slept.append, log=lambda *_: None)
+        self.assertEqual(cli.get("x"), {"ok": 1})
+        self.assertEqual(slept, [])
+        cli.get("x")
+        self.assertTrue(slept and 55 <= slept[0] <= 60)
+
     def test_retry_on_throttle(self):
         slept = []
         fake = FakeMeta(throttle_once=True)
@@ -270,6 +300,14 @@ class PgStore:
             q = f"select coalesce(json_agg(t),'[]') from public.{table} t{w}"
         return json.loads(self.sql(q))
 
+    def insert_ignore(self, table, rows, on_conflict):
+        if not rows:
+            return 0
+        keys = sorted({k for r in rows for k in r})
+        vals = ",".join("(" + ",".join(self.lit(r.get(k)) for k in keys) + ")" for r in rows)
+        self.sql(f"insert into public.{table} ({','.join(keys)}) values {vals} on conflict ({on_conflict}) do nothing")
+        return len(rows)
+
     def insert_returning(self, table, row):
         keys = list(row)
         out = self.sql(f"insert into public.{table} ({','.join(keys)}) values ({','.join(self.lit(row[k]) for k in keys)}) returning row_to_json({table})")
@@ -309,12 +347,15 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(self.pg.sql("select frequency_7d from traffic_adsets where adset_id='s1'"), "3.9000")
         self.assertEqual(self.pg.sql(
             "select string_agg(level||':'||purchases||':'||coalesce(unidade,'-'),',' order by level,campaign_id) from traffic_insights_daily"),
-            "account:5:-,ad:5:Dirceu,adset:5:Dirceu,campaign:5:Dirceu,campaign:0:Sul")
+            "account:5:-,ad:5:Dirceu,adset:5:Dirceu,campaign:5:Dirceu,campaign:0:Sul,campaign:0:Dom Severino")
+        # campanha arquivada (fora da lista de metadados) ganha nome e unidade pelo insight
+        self.assertEqual(self.pg.sql("select name||'|'||unidade from traffic_campaigns where campaign_id='c9'"),
+                         "[ARQUIVADA] [DOM SEVERINO] promo|Dom Severino")
         self.assertEqual(self.pg.sql("select status from traffic_sync_log order by id desc limit 1"), "success")
 
         # re-rodar não duplica (upsert)
         run("intraday", meta=self._meta(), store=self.pg, log=lambda *_: None)
-        self.assertEqual(self.pg.sql("select count(*) from traffic_insights_daily where level='campaign'"), "2")
+        self.assertEqual(self.pg.sql("select count(*) from traffic_insights_daily where level='campaign'"), "3")
 
         res = run("daily", meta=self._meta(), store=self.pg, log=lambda *_: None)
         self.assertEqual(res[0]["status"], "success", res)

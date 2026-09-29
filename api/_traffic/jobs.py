@@ -20,7 +20,7 @@ from .transform import (
 
 LEVELS = ("account", "campaign", "adset", "ad")
 INSIGHT_FIELDS = [
-    "account_id", "campaign_id", "adset_id", "ad_id", "date_start",
+    "account_id", "campaign_id", "campaign_name", "adset_id", "adset_name", "ad_id", "ad_name", "date_start",
     "spend", "impressions", "reach", "frequency", "clicks", "inline_link_clicks",
     "inline_link_click_ctr", "cost_per_inline_link_click", "cpm",
     "actions", "action_values",
@@ -136,9 +136,9 @@ class AccountSync:
         now = _now_iso()
         for level in LEVELS:
             fields = [f for f in INSIGHT_FIELDS if not (
-                (f == "campaign_id" and level == "account") or
-                (f == "adset_id" and level in ("account", "campaign")) or
-                (f == "ad_id" and level != "ad"))]
+                (f.startswith("campaign_") and level == "account") or
+                (f.startswith("adset_") and level in ("account", "campaign")) or
+                (f.startswith("ad_") and level != "ad"))]
             raw = self.meta.insights(self.account_id, {
                 "level": level,
                 "time_range": {"since": since.isoformat(), "until": until.isoformat()},
@@ -147,6 +147,7 @@ class AccountSync:
                 "use_account_attribution_setting": "true",
                 "limit": 500,
             }, use_async=use_async)
+            self._learn_missing(level, raw)
             out = []
             for r in raw:
                 out.append({
@@ -163,6 +164,33 @@ class AccountSync:
             self.rows += self.store.upsert(
                 "traffic_insights_daily", out, "account_id,level,campaign_id,adset_id,ad_id,date")
             self.log(f"[{self.account_id}] {level} {since}..{until}: {len(out)} linhas")
+
+    def _learn_missing(self, level: str, raw: list[dict]) -> None:
+        """Objetos arquivados/excluídos não vêm nas listas de metadados, mas os insights
+        trazem o nome: criamos o metadado mínimo (sem sobrescrever o que já existe) e
+        derivamos a unidade pelo nome, para não caírem em "Geral" nem aparecerem só com ID."""
+        now = _now_iso()
+        camps, sets, ads = {}, {}, {}
+        for r in raw:
+            cid = r.get("campaign_id")
+            if cid and cid not in self.unit_by_campaign and level != "account":
+                self.unit_by_campaign[cid] = self.units.unit_for(r.get("campaign_name"))
+                camps[cid] = {"campaign_id": cid, "account_id": self.account_id, "name": r.get("campaign_name"),
+                              "unidade": self.unit_by_campaign[cid], "updated_at": now}
+            sid = r.get("adset_id")
+            if sid and sid not in self.unit_by_adset and level in ("adset", "ad"):
+                self.unit_by_adset[sid] = self.units.unit_for(
+                    r.get("adset_name"), fallback=self.unit_by_campaign.get(cid))
+                sets[sid] = {"adset_id": sid, "account_id": self.account_id, "campaign_id": cid,
+                             "name": r.get("adset_name"), "unidade": self.unit_by_adset[sid], "updated_at": now}
+            aid = r.get("ad_id")
+            if aid and aid not in self.unit_by_ad and level == "ad":
+                self.unit_by_ad[aid] = self.unit_by_adset.get(sid) or self.unit_by_campaign.get(cid) or UnitMapper.DEFAULT
+                ads[aid] = {"ad_id": aid, "account_id": self.account_id, "campaign_id": cid, "adset_id": sid,
+                            "name": r.get("ad_name"), "unidade": self.unit_by_ad[aid], "updated_at": now}
+        self.store.insert_ignore("traffic_campaigns", list(camps.values()), "campaign_id")
+        self.store.insert_ignore("traffic_adsets", list(sets.values()), "adset_id")
+        self.store.insert_ignore("traffic_ads", list(ads.values()), "ad_id")
 
     # ------------------------------------------------------------ por hora
     def sync_hourly(self, day: date) -> None:
@@ -201,6 +229,9 @@ class AccountSync:
             self.store.update("traffic_ad_accounts", {"account_id": self.account_id}, {
                 "frequency_7d": acc[0].get("frequency"), "reach_7d": acc[0].get("reach"), "snapshot_at": now,
             })
+        # Conjunto sem entrega nos últimos 7 dias não volta na resposta: zera o valor
+        # antigo para não manter um alerta de fadiga "fantasma".
+        self.store.update("traffic_adsets", {"account_id": self.account_id}, {"frequency_7d": None, "reach_7d": None})
         rows = self.meta.insights(self.account_id, {
             "level": "adset", "date_preset": "last_7d",
             "fields": "adset_id,campaign_id,reach,frequency", "limit": 500,
@@ -237,7 +268,20 @@ def run(job: str, *, meta: MetaClient, store: SupabaseStore, only_account: str |
     results = []
     for account, client, mapping in _load_accounts(store, only_account):
         acc_id = account["account_id"]
-        entry = store.insert_returning("traffic_sync_log", {"account_id": acc_id, "job": job, "status": "running"})
+        try:
+            entry = store.insert_returning("traffic_sync_log", {"account_id": acc_id, "job": job, "status": "running"})
+        except Exception:  # noqa: BLE001 — sem log não impede o sync
+            log(traceback.format_exc())
+            entry = {}
+
+        def finish(values: dict) -> None:
+            if not entry.get("id"):
+                return
+            try:
+                store.update("traffic_sync_log", {"id": entry["id"]}, values)
+            except Exception:  # noqa: BLE001 — falha no log não derruba as outras contas
+                log(traceback.format_exc())
+
         sync = AccountSync(meta, store, account, client, mapping, log=log)
         t0 = time.monotonic()
         try:
@@ -267,16 +311,12 @@ def run(job: str, *, meta: MetaClient, store: SupabaseStore, only_account: str |
                     sync.sync_daily(a, b, use_async=True)
             else:
                 raise ValueError(f"job desconhecido: {job}")
-            store.update("traffic_sync_log", {"id": entry.get("id")}, {
-                "status": "success", "finished_at": _now_iso(), "rows_written": sync.rows,
-            })
+            finish({"status": "success", "finished_at": _now_iso(), "rows_written": sync.rows})
             results.append({"account_id": acc_id, "status": "success", "rows": sync.rows,
                             "seconds": round(time.monotonic() - t0, 1)})
         except Exception as e:  # noqa: BLE001 — qualquer falha vai para o traffic_sync_log
             log(traceback.format_exc())
-            store.update("traffic_sync_log", {"id": entry.get("id")}, {
-                "status": "error", "finished_at": _now_iso(), "rows_written": sync.rows,
-                "error": f"{type(e).__name__}: {e}"[:2000],
-            })
+            finish({"status": "error", "finished_at": _now_iso(), "rows_written": sync.rows,
+                    "error": f"{type(e).__name__}: {e}"[:2000]})
             results.append({"account_id": acc_id, "status": "error", "error": str(e)})
     return results

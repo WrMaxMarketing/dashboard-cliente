@@ -9,6 +9,15 @@ export const maxDuration = 300;
 
 const COOLDOWN_MIN = 5;
 
+// A URL que recebe o CRON_SECRET NUNCA vem do Host da requisição (que o usuário
+// controla): usa TRAFFIC_SYNC_BASE_URL ou a URL do próprio deploy (VERCEL_URL).
+function syncBase(req: NextRequest): string {
+  if (process.env.TRAFFIC_SYNC_BASE_URL) return process.env.TRAFFIC_SYNC_BASE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (process.env.NODE_ENV !== "production") return req.nextUrl.origin; // dev local
+  throw new Error("Defina TRAFFIC_SYNC_BASE_URL fora da Vercel.");
+}
+
 export async function POST(req: NextRequest) {
   const ctx = await getTrafficContext(req.nextUrl.searchParams.get("c") ?? undefined); // sessão + RLS
   if (!ctx.client || !ctx.accountIds.length) {
@@ -41,7 +50,7 @@ export async function POST(req: NextRequest) {
   }
   const results = await Promise.all(
     ctx.accountIds.map(async (acc) => {
-      const url = new URL("/api/traffic_sync", req.nextUrl.origin);
+      const url = new URL("/api/traffic_sync", syncBase(req));
       url.searchParams.set("job", "intraday");
       url.searchParams.set("account", acc);
       try {

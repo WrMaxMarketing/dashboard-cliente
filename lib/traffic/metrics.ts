@@ -131,8 +131,9 @@ export type Pacing = {
   state: "adiantado" | "atrasado" | "no ritmo" | "sem verba";
 };
 
-export function pacing(spentMonth: number, budget: number | null, dayOfMonth: number, nowHour: number, monthDays: number): Pacing {
-  const pctMonth = Math.min(1, (dayOfMonth - 1 + (nowHour + 1) / 24) / monthDays);
+/** monthFraction = fração do mês decorrida NO MOMENTO DO ÚLTIMO SYNC (o gasto é daquele instante). */
+export function pacing(spentMonth: number, budget: number | null, monthFraction: number): Pacing {
+  const pctMonth = Math.max(0, Math.min(1, monthFraction));
   if (!budget || budget <= 0) {
     return { spent: spentMonth, budget: null, pctUsed: null, pctMonth, deviation: null, state: "sem verba" };
   }
