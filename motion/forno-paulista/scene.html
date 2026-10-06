@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Forno Paulista Motion</title>
+<style>
+  @font-face { font-family: "Anton"; src: url(fonts/anton.woff2) format("woff2"); }
+  @font-face { font-family: "Inter"; src: url(fonts/inter.woff2) format("woff2"); font-weight: 100 900; }
+  html, body { margin: 0; background: #000; }
+  canvas { display: block; width: 100vw; height: auto; max-width: 540px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// ===== Direção de arte (ajuste aqui) =====
+const CFG = {
+  duration: 12,              // segundos
+  fps: 30,
+  red: "#C8102E",            // vermelho da marca
+  cream: "#FFF3E0",
+  ember: "#FF7A1A",
+  bg: "#120A07",
+  intro: ["SAIU", "DO", "FORNO."],
+  tagline: ["MASSA FEITA", "NA HORA.", "QUENTINHA", "ATÉ VOCÊ."],
+  brand: ["FORNO", "PAULISTA"],
+  cta: "PEÇA AGORA",
+  sub: "delivery · direto do forno",
+};
+
+const W = 1080, H = 1920;
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d");
+
+// ===== utilitários =====
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const easeOut = k => 1 - Math.pow(1 - k, 3);
+const easeIn = k => k * k * k;
+const easeInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const easeBack = k => { const c = 1.70158, c3 = c + 1; return 1 + c3 * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+const bounce = k => { const n = 7.5625, d = 2.75;
+  if (k < 1 / d) return n * k * k;
+  if (k < 2 / d) return n * (k -= 1.5 / d) * k + .75;
+  if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + .9375;
+  return n * (k -= 2.625 / d) * k + .984375; };
+function rng(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+// ===== dados determinísticos =====
+const R = rng(42);
+const embers = Array.from({ length: 90 }, () => ({
+  x: R() * W, y: R() * H, sp: 80 + R() * 260, r: 1.5 + R() * 4.5, sw: 20 + R() * 50, ph: R() * 6.28,
+}));
+const cheese = Array.from({ length: 26 }, () => {
+  const a = R() * 6.28, d = Math.sqrt(R()) * 0.72;
+  return { x: Math.cos(a) * d, y: Math.sin(a) * d, r: .09 + R() * .08, rot: R() * 6.28, delay: R() * .5 };
+});
+const pepperoni = [];
+{ const golden = 2.39996; for (let i = 0; i < 11; i++) {
+  const d = 0.18 + 0.52 * Math.sqrt((i + .5) / 11), a = i * golden;
+  pepperoni.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, delay: i * .07 });
+} }
+const basil = Array.from({ length: 6 }, (_, i) => {
+  const a = i * 1.05 + .4, d = .35 + R() * .3;
+  return { x: Math.cos(a) * d, y: Math.sin(a) * d, rot: R() * 6.28, delay: i * .06 };
+});
+// grão de filme
+const grain = document.createElement("canvas"); grain.width = grain.height = 256;
+{ const g = grain.getContext("2d"), id = g.createImageData(256, 256), r = rng(7);
+  for (let i = 0; i < id.data.length; i += 4) { const v = r() * 255; id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = 22; }
+  g.putImageData(id, 0, 0); }
+
+// ===== peças =====
+function drawEmbers(t, alpha) {
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (const e of embers) {
+    const y = ((e.y - e.sp * t) % H + H) % H;
+    const x = e.x + Math.sin(t * 1.6 + e.ph) * e.sw;
+    const fl = .5 + .5 * Math.sin(t * 9 + e.ph * 3);
+    const a = alpha * (0.35 + 0.65 * fl) * (y / H);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, e.r * 4);
+    g.addColorStop(0, `rgba(255,200,120,${a})`); g.addColorStop(.35, `rgba(255,110,30,${a * .6})`); g.addColorStop(1, "rgba(255,80,0,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, e.r * 4, 0, 6.29); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawOven(t, glow) {
+  // boca do forno em arco, com brasa pulsando
+  const cx = W / 2, by = H + 40, rw = 520, rh = 620;
+  const flick = .85 + .15 * Math.sin(t * 7) * Math.sin(t * 3.3);
+  const g = ctx.createRadialGradient(cx, by, 50, cx, by, 1100);
+  g.addColorStop(0, `rgba(255,140,40,${.75 * glow * flick})`);
+  g.addColorStop(.35, `rgba(200,50,20,${.4 * glow})`);
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.strokeStyle = `rgba(255,190,120,${.5 * glow})`; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.ellipse(cx, by, rw, rh, 0, Math.PI, 2 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = `rgba(255,190,120,${.18 * glow})`; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(cx, by, rw + 60, rh + 60, 0, Math.PI, 2 * Math.PI); ctx.stroke();
+  ctx.restore();
+}
+
+// texto que sobe de dentro de uma máscara
+function maskedLine(text, x, y, size, k, opts = {}) {
+  const { font = "Anton", color = CFG.cream, align = "center", weight = "", spacing = 0 } = opts;
+  ctx.save();
+  ctx.font = `${weight} ${size}px ${font}`.trim();
+  ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+  if ("letterSpacing" in ctx) ctx.letterSpacing = spacing + "px";
+  const m = ctx.measureText(text), w = m.width + 40;
+  const left = align === "center" ? x - w / 2 : align === "right" ? x - w : x - 20;
+  ctx.beginPath(); ctx.rect(left, y - size * 1.05, w, size * 1.3); ctx.clip();
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y + (1 - easeOut(k)) * size * 1.25);
+  ctx.restore();
+}
+
+function pizzaBody(r, t, tBuild) {
+  // massa
+  const kd = easeBack(prog(tBuild, 0, .55));
+  if (kd <= 0) return;
+  ctx.save(); ctx.scale(kd, kd);
+  let g = ctx.createRadialGradient(0, 0, r * .6, 0, 0, r);
+  g.addColorStop(0, "#F2C27A"); g.addColorStop(.85, "#D9963E"); g.addColorStop(1, "#A8601E");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.29); ctx.fill();
+  // tostado da borda
+  const R2 = rng(3);
+  for (let i = 0; i < 30; i++) { const a = R2() * 6.28, d = r * (.88 + R2() * .09);
+    ctx.fillStyle = `rgba(110,50,15,${.25 + R2() * .3})`;
+    ctx.beginPath(); ctx.ellipse(Math.cos(a) * d, Math.sin(a) * d, 6 + R2() * 14, 4 + R2() * 6, a, 0, 6.29); ctx.fill(); }
+  // molho
+  const ks = easeOut(prog(tBuild, .35, .85));
+  if (ks > 0) {
+    g = ctx.createRadialGradient(0, 0, 0, 0, 0, r * .84);
+    g.addColorStop(0, "#D8341C"); g.addColorStop(1, "#A51E10");
+    ctx.fillStyle = g; ctx.beginPath();
+    for (let i = 0; i <= 64; i++) { const a = i / 64 * 6.283, w = 1 + .025 * Math.sin(a * 7) ;
+      const rr = r * .84 * ks * w; i ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : ctx.moveTo(rr, 0); }
+    ctx.fill();
+  }
+  // queijo
+  for (const c of cheese) {
+    const k = easeBack(prog(tBuild, .75 + c.delay, 1.05 + c.delay)); if (k <= 0) continue;
+    ctx.save(); ctx.translate(c.x * r, c.y * r); ctx.rotate(c.rot); ctx.scale(k, k);
+    g = ctx.createRadialGradient(-c.r * r * .3, -c.r * r * .3, 0, 0, 0, c.r * r * 1.3);
+    g.addColorStop(0, "#FFF6D6"); g.addColorStop(.7, "#FBDD8A"); g.addColorStop(1, "rgba(240,190,90,.0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, c.r * r * 1.3, c.r * r, 0, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
+  // pepperoni caindo com quique
+  for (const p of pepperoni) {
+    const kk = prog(tBuild, 1.35 + p.delay, 1.95 + p.delay); if (kk <= 0) continue;
+    const drop = (1 - bounce(kk)) * -r * 1.4, sc = 1 + (1 - bounce(kk)) * .5;
+    ctx.save(); ctx.translate(p.x * r, p.y * r + drop); ctx.scale(sc, sc);
+    ctx.globalAlpha = clamp(kk * 4);
+    const pr = r * .11;
+    ctx.fillStyle = "rgba(60,10,5,.35)"; ctx.beginPath(); ctx.arc(4, 7, pr, 0, 6.29); ctx.fill();
+    g = ctx.createRadialGradient(-pr * .3, -pr * .3, 0, 0, 0, pr);
+    g.addColorStop(0, "#C8402C"); g.addColorStop(1, "#7E1A10");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, pr, 0, 6.29); ctx.fill();
+    ctx.fillStyle = "rgba(255,210,170,.35)";
+    for (let j = 0; j < 4; j++) { ctx.beginPath(); ctx.arc(Math.cos(j * 1.7) * pr * .5, Math.sin(j * 2.3) * pr * .5, pr * .1, 0, 6.29); ctx.fill(); }
+    ctx.restore();
+  }
+  // manjericão
+  for (const b of basil) {
+    const k = easeBack(prog(tBuild, 2.1 + b.delay, 2.45 + b.delay)); if (k <= 0) continue;
+    ctx.save(); ctx.translate(b.x * r, b.y * r); ctx.rotate(b.rot); ctx.scale(k, k);
+    ctx.fillStyle = "#2F7D32"; ctx.beginPath();
+    ctx.moveTo(-r * .06, 0); ctx.quadraticCurveTo(0, -r * .05, r * .06, 0); ctx.quadraticCurveTo(0, r * .05, -r * .06, 0); ctx.fill();
+    ctx.strokeStyle = "rgba(200,255,200,.35)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-r * .05, 0); ctx.lineTo(r * .05, 0); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawPizza(cx, cy, r, t, tBuild, tilt, spin, pull) {
+  ctx.save(); ctx.translate(cx, cy);
+  // sombra / espessura (falso 3D)
+  const kd = easeBack(prog(tBuild, 0, .55));
+  if (kd > 0) {
+    ctx.save(); ctx.scale(1, tilt);
+    const th = 34 * (1 - tilt) / .55 + 6;
+    ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.filter = "blur(30px)";
+    ctx.beginPath(); ctx.ellipse(0, r * .12 / tilt + 30, r * kd * 1.02, r * kd, 0, 0, 6.29); ctx.fill();
+    ctx.filter = "none";
+    ctx.fillStyle = "#8A4A14"; ctx.beginPath(); ctx.arc(0, th / tilt, r * kd, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
+  ctx.scale(1, tilt); ctx.rotate(spin);
+  const a1 = -0.95, a2 = -0.95 + Math.PI / 4, am = (a1 + a2) / 2;
+  if (pull <= 0) { pizzaBody(r, t, tBuild); ctx.restore(); return; }
+  // vão escuro onde a fatia estava
+  ctx.fillStyle = "#1A0D08"; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r * kd + 2, a1, a2); ctx.closePath(); ctx.fill();
+  // pizza sem a fatia
+  ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r * 1.3, a2, a1 + Math.PI * 2); ctx.closePath(); ctx.clip();
+  pizzaBody(r, t, tBuild); ctx.restore();
+  // fios de queijo
+  const off = pull * r * .7, ox = Math.cos(am) * off, oy = Math.sin(am) * off;
+  ctx.save(); ctx.strokeStyle = "#FBE29A"; ctx.lineCap = "round";
+  for (let i = 0; i < 7; i++) {
+    const side = i % 2 ? a1 : a2, d = r * (.15 + i * .1);
+    const x0 = Math.cos(side) * d, y0 = Math.sin(side) * d;
+    const sag = 18 * Math.sin(i * 1.3 + t * 3);
+    ctx.lineWidth = 12 * (1 - pull) + 3;
+    ctx.globalAlpha = clamp(1.6 - pull);
+    ctx.beginPath(); ctx.moveTo(x0, y0);
+    ctx.quadraticCurveTo(x0 + ox / 2 + sag, y0 + oy / 2 + Math.abs(sag), x0 + ox, y0 + oy); ctx.stroke();
+  }
+  ctx.restore();
+  // fatia
+  ctx.save(); ctx.translate(ox, oy);
+  ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r * 1.3, a1, a2); ctx.closePath(); ctx.clip();
+  pizzaBody(r, t, tBuild); ctx.restore();
+  ctx.restore();
+}
+
+function drawSteam(cx, cy, t, a) {
+  if (a <= 0) return;
+  ctx.save(); ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    const x = cx - 180 + i * 120, ph = t * 1.4 + i * 1.7, life = (ph % 2) / 2;
+    ctx.strokeStyle = `rgba(255,240,225,${a * .22 * Math.sin(life * Math.PI)})`;
+    ctx.lineWidth = 16; ctx.filter = "blur(6px)";
+    ctx.beginPath();
+    for (let s = 0; s <= 20; s++) { const yy = cy - life * 260 - s * 14, xx = x + Math.sin(s * .45 + ph * 2) * 26;
+      s ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+    ctx.stroke();
+  }
+  ctx.filter = "none"; ctx.restore();
+}
+
+function flame(x, y, s, t) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s * (1 + .05 * Math.sin(t * 10)));
+  ctx.fillStyle = CFG.cream; ctx.beginPath();
+  ctx.moveTo(0, -60); ctx.bezierCurveTo(30, -25, 42, 0, 30, 28); ctx.bezierCurveTo(20, 50, -20, 50, -30, 28);
+  ctx.bezierCurveTo(-40, 6, -22, -6, -12, -22); ctx.bezierCurveTo(-8, -8, 0, -4, 4, 2); ctx.bezierCurveTo(10, -18, 4, -40, 0, -60); ctx.fill();
+  ctx.fillStyle = CFG.red; ctx.beginPath(); ctx.ellipse(0, 26, 12, 16, 0, 0, 6.29); ctx.fill();
+  ctx.restore();
+}
+
+// ===== render(t): cada quadro é função do tempo =====
+function render(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = CFG.bg; ctx.fillRect(0, 0, W, H);
+
+  // câmera: push-in lento + leve tremor no impacto
+  const cam = 1 + .06 * easeInOut(prog(t, 0, 9));
+  ctx.translate(W / 2, H / 2); ctx.scale(cam, cam); ctx.translate(-W / 2, -H / 2);
+
+  const glow = easeOut(prog(t, 0, 1.4)) * (1 - .4 * prog(t, 6, 9));
+  drawOven(t, glow);
+  drawEmbers(t, glow);
+
+  // CENA 1 — "SAIU DO FORNO."
+  const out1 = easeIn(prog(t, 2.3, 2.8));
+  ctx.save(); ctx.globalAlpha = 1 - out1; ctx.translate(0, -out1 * 120);
+  CFG.intro.forEach((w, i) => {
+    const k = prog(t, .25 + i * .22, .85 + i * .22);
+    maskedLine(w, W / 2, 760 + i * 230, 250, k, { color: i === 2 ? CFG.ember : CFG.cream });
+  });
+  ctx.restore();
+
+  // CENA 2/3 — pizza: monta, gira, vira de perfil→topo, fatia sai
+  const tb = t - 2.5;
+  if (tb > 0) {
+    const tilt = lerp(.42, 1, easeInOut(prog(t, 2.6, 4.6)));
+    const move = easeInOut(prog(t, 6.0, 6.9));
+    const cy = lerp(1000, 680, move), r = lerp(360, 320, move);
+    const spin = t * .25;
+    const pull = easeOut(prog(t, 6.6, 7.6)) - easeInOut(prog(t, 8.6, 9.2));
+    const exitK = easeIn(prog(t, 9.0, 9.6));
+    ctx.save(); ctx.translate(W / 2, cy); ctx.scale(1 + exitK * .3, 1 + exitK * .3); ctx.translate(-W / 2, -cy);
+    drawPizza(W / 2, cy, r, t, tb, tilt, spin, Math.max(0, pull));
+    ctx.restore();
+    drawSteam(W / 2, cy - r * tilt - 10, t, prog(t, 4.6, 5.4) * (1 - exitK));
+  }
+
+  // tagline
+  if (t > 6.6 && t < 9.6) {
+    const out = easeIn(prog(t, 9.0, 9.4));
+    ctx.save(); ctx.globalAlpha = 1 - out;
+    CFG.tagline.forEach((w, i) => {
+      const k = prog(t, 6.9 + i * .18, 7.5 + i * .18);
+      maskedLine(w, W / 2, 1320 + i * 150 + (i > 1 ? 40 : 0), 140, k, { color: i > 1 ? CFG.ember : CFG.cream });
+    });
+    ctx.restore();
+  }
+
+  // CENA 4 — wipe vermelho + marca + CTA
+  const wipe = easeInOut(prog(t, 9.2, 9.9));
+  if (wipe > 0) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = CFG.red; ctx.beginPath(); ctx.arc(W / 2, 680, wipe * 2100, 0, 6.29); ctx.fill();
+    // raios girando ao fundo
+    ctx.save(); ctx.translate(W / 2, 860); ctx.rotate(t * .15); ctx.globalAlpha = .08 * wipe; ctx.fillStyle = "#000";
+    for (let i = 0; i < 16; i++) { ctx.rotate(Math.PI / 8); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(1400, -110); ctx.lineTo(1400, 110); ctx.fill(); }
+    ctx.restore();
+    const kf = easeBack(prog(t, 9.7, 10.2));
+    if (kf > 0) flame(W / 2, 600, 2.2 * kf, t);
+    maskedLine(CFG.brand[0], W / 2, 950, 260, prog(t, 9.85, 10.35));
+    maskedLine(CFG.brand[1], W / 2, 1170, 200, prog(t, 10.0, 10.5), { spacing: 6 });
+    // sublinhado desenhando
+    const ul = easeOut(prog(t, 10.3, 10.9));
+    ctx.fillStyle = CFG.cream; ctx.fillRect(W / 2 - 330 * ul, 1215, 660 * ul, 8);
+    // CTA
+    const kc = easeBack(prog(t, 10.6, 11.1));
+    if (kc > 0) {
+      ctx.save(); ctx.translate(W / 2, 1420); ctx.scale(kc, kc);
+      const pulse = 1 + .03 * Math.sin((t - 11) * 8) * prog(t, 11.1, 11.3);
+      ctx.scale(pulse, pulse);
+      ctx.fillStyle = CFG.cream; ctx.beginPath(); ctx.roundRect(-300, -75, 600, 150, 75); ctx.fill();
+      ctx.fillStyle = CFG.red; ctx.font = "800 64px Inter"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      if ("letterSpacing" in ctx) ctx.letterSpacing = "2px";
+      ctx.fillText(CFG.cta, 0, 4);
+      ctx.restore();
+    }
+    ctx.save(); ctx.globalAlpha = easeOut(prog(t, 11.0, 11.5));
+    ctx.fillStyle = CFG.cream; ctx.font = "500 40px Inter"; ctx.textAlign = "center";
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "4px";
+    ctx.fillText(CFG.sub.toUpperCase(), W / 2, 1590); ctx.restore();
+  }
+
+  // grão + vinheta
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.save(); ctx.globalCompositeOperation = "overlay";
+  const f = Math.floor(t * CFG.fps);
+  ctx.fillStyle = ctx.createPattern(grain, "repeat");
+  ctx.translate((f * 37) % 256, (f * 91) % 256); ctx.fillRect(-256, -256, W + 512, H + 512);
+  ctx.restore();
+  const v = ctx.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H * .75);
+  v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.55)");
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+}
+
+window.CFG = CFG;
+window.render = render;
+window.ready = document.fonts.load("100px Anton").then(() => document.fonts.load("800 60px Inter")).then(() => document.fonts.load("500 40px Inter"));
+
+// preview ao abrir no navegador (desliga com ?render)
+if (!location.search.includes("render")) {
+  window.ready.then(() => { const t0 = performance.now();
+    (function loop() { render(((performance.now() - t0) / 1000) % CFG.duration); requestAnimationFrame(loop); })(); });
+}
+</script>
+</body>
+</html>
