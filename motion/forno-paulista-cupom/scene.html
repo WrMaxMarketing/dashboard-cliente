@@ -236,7 +236,7 @@ function buildTicket() {
   c.fillStyle = CFG.redDark; c.textAlign = "center"; c.textBaseline = "middle";
   c.font = "600 30px Poppins"; c.letterSpacing = "3px";
   c.fillText("USE O", x0 + stub / 2, y0 + h / 2 - 34); c.fillText("CUPOM", x0 + stub / 2, y0 + h / 2 + 6);
-  c.font = "600 22px Poppins"; c.fillStyle = "rgba(163,20,27,.7)"; c.fillText("no app", x0 + stub / 2, y0 + h / 2 + 48);
+  c.font = "600 22px Poppins"; c.fillStyle = "rgba(163,20,27,.7)"; c.fillText("no site", x0 + stub / 2, y0 + h / 2 + 48);
   c.letterSpacing = "4px"; c.fillStyle = "#fff"; c.font = "800 100px Poppins";
   c.shadowColor = "rgba(80,0,0,.45)"; c.shadowOffsetY = 6; c.shadowBlur = 12;
   c.fillText(CFG.coupon, x0 + stub + (w - stub) / 2, y0 + h / 2 + 8);
@@ -438,16 +438,10 @@ function render(t) {
 
 window.CFG = CFG; window.render = render;
 window.ready = Promise.all([
-  img("assets/pizza.jpg").then(i => PHOTO = i), img("assets/logo.png").then(i => LOGO = i),
+  img("assets/pizza.jpg").then(i => PHOTO = i), img("assets/logo-recortado.png").then(i => LOGO = i),
   document.fonts.load("100px DMSerif"), document.fonts.load("italic 100px DMSerif"),
   document.fonts.load("600 30px Poppins"), document.fonts.load("800 30px Poppins"),
-]).then(() => { buildPhoto(); buildTicket();
-  // logo: esfuma o fundo da foto em volta
-  const c = off(LOGO.width, LOGO.height), g = c.getContext("2d"); g.drawImage(LOGO, 0, 0);
-  g.globalCompositeOperation = "destination-in";
-  const rg = g.createRadialGradient(c.width / 2, c.height / 2, c.height * .2, c.width / 2, c.height / 2, c.width * .42);
-  rg.addColorStop(0, "#000"); rg.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = rg; g.fillRect(0, 0, c.width, c.height);
-  LOGO = c; });
+]).then(() => { buildPhoto(); buildTicket(); });
 if (!location.search.includes("render")) {
   window.ready.then(() => { const t0 = performance.now();
     (function loop() { render(((performance.now() - t0) / 1000) % CFG.duration); requestAnimationFrame(loop); })(); });

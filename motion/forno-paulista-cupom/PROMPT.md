@@ -51,3 +51,11 @@ node render.mjs video-mudo.mp4
 python3 sfx.py
 ffmpeg -i video-mudo.mp4 -i sfx.wav -c:v copy -c:a aac -shortest forno-paulista-cupom.mp4
 ```
+
+## Overlay do cupom (só os elementos, para inserir em outros vídeos)
+`overlay.html` + `render-overlay.mjs` geram, em `overlay/`, 7s em 9:16:
+- `cupom-bemvindo-tela-verde.mp4`: para CapCut e celular (Sobreposição → Remover fundo → Chroma key, cor verde)
+- `cupom-bemvindo-alpha.webm`: fundo transparente de verdade, com sombra escura suave (Premiere, DaVinci, After Effects)
+- `node render-overlay.mjs --mov` também gera um `.mov` com alfa, de cerca de 200 MB, que não fica no repositório
+
+No `CFG` do `overlay.html`: `blockY` sobe ou desce o bloco inteiro, e `plate` controla a força do fundo escuro atrás.
