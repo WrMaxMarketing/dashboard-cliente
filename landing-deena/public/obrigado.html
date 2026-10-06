@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monitoramento ativado · Deena</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+  <style>
+    .ty { min-height: 100dvh; display: grid; place-items: center; padding: 32px 16px;
+      background: radial-gradient(700px 400px at 50% 0, rgba(213,138,47,.25), transparent 70%), var(--bg); }
+    .ty-card { width: min(620px, 100%); text-align: center; }
+    .ty-badge { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 22px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--gold-2), var(--gold)); color: #1a1209; font-size: 40px;
+      box-shadow: 0 0 0 14px rgba(240,178,90,.15); }
+    .ty h1 { font-size: clamp(28px, 5vw, 42px); margin-bottom: 12px; }
+    .ty ol { text-align: left; margin: 28px auto; display: grid; gap: 12px; list-style: none; counter-reset: n; }
+    .ty li { counter-increment: n; display: grid; grid-template-columns: 34px 1fr; gap: 12px; background: var(--bg-2);
+      border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; color: #ddd4c9; }
+    .ty li::before { content: counter(n); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--gold-soft); color: var(--gold-2); font-weight: 700; }
+    .demo { font-size: 13px; color: var(--dim); margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main class="ty">
+    <div class="ty-card">
+      <div class="ty-badge">✓</div>
+      <h1>Pronto! Seu CNPJ entrou no <em style="font-style:normal;color:var(--gold-2)">radar</em>.</h1>
+      <p class="lead" style="margin:0 auto">Plano <strong id="ty-plano">Deena</strong> confirmado. A partir de agora, novos processos distribuídos contra a sua empresa chegam direto para você.</p>
+      <ol>
+        <li>Você vai receber um e-mail de boas-vindas com os detalhes da assinatura.</li>
+        <li>Salve o nosso contato no WhatsApp — é por lá que os alertas chegam primeiro.</li>
+        <li>Se algum processo for identificado, você recebe os dados na hora, conforme o seu plano.</li>
+      </ol>
+      <a class="btn btn-gold" id="ty-wpp" href="/" style="display:none">Salvar contato no WhatsApp</a>
+      <p><a href="/" style="color:var(--muted)">Voltar para o site</a></p>
+      <p class="demo" id="ty-demo" hidden>Modo demonstração: nenhum pagamento real foi processado (gateway não configurado).</p>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var cfg = window.DEENA_CONFIG || { planos: {} };
+      var q = new URLSearchParams(location.search);
+      var plano = cfg.planos[q.get("plano")];
+      var ref = q.get("ref") || "";
+      if (plano) document.getElementById("ty-plano").textContent = plano.nome;
+      if (q.get("demo")) document.getElementById("ty-demo").hidden = false;
+      if (cfg.whatsapp) {
+        var a = document.getElementById("ty-wpp");
+        a.href = "https://wa.me/" + cfg.whatsapp + "?text=" + encodeURIComponent("Olá! Acabei de assinar o monitoramento de CNPJ da Deena.");
+        a.style.display = "inline-flex";
+      }
+      // Purchase: dispara uma única vez por pedido
+      var key = "deena_purchase_" + ref;
+      var jaEnviado = false;
+      try { jaEnviado = !!localStorage.getItem(key); } catch (e) {}
+      if (cfg.pixelId && plano && !jaEnviado) {
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq("init", cfg.pixelId);
+        fbq("track", "PageView");
+        fbq("track", "Purchase", { value: plano.preco, currency: "BRL", content_name: plano.nome }, { eventID: ref });
+        try { localStorage.setItem(key, "1"); } catch (e) {}
+      }
+      if (plano) (window.dataLayer = window.dataLayer || []).push({ event: "Purchase", value: plano.preco, plano: plano.id, ref: ref });
+    })();
+  </script>
+</body>
+</html>

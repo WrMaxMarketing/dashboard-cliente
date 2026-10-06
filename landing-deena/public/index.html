@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deena · Monitoramento de CNPJ — saiba do processo antes da citação</title>
+  <meta name="description" content="Monitoramento contínuo de processos judiciais contra o seu CNPJ. Receba o alerta assim que a ação é distribuída — antes da citação oficial." />
+  <meta name="theme-color" content="#0d0c0b" />
+  <meta property="og:title" content="Saiba de um processo contra sua empresa antes da citação oficial" />
+  <meta property="og:description" content="Deena · Monitoramento de CNPJ. Alerta na distribuição, direto no seu WhatsApp e e-mail." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0c0b'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%23f0b25a' stroke-width='5'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+  <!-- Ícones -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zM14 3v5h5M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v11"/></symbol>
+    <symbol id="i-chess" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 7a3 3 0 116 0c0 1-.5 1.8-1.2 2.3L15 16H9l1.2-6.7C9.5 8.8 9 8 9 7zM7 20h10M8 16h8l1 4H7z"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 12l6-6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M8 10V7a4 4 0 018 0v3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.35M15.5 4.15a3.5 3.5 0 010 6.7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z"/></symbol>
+  </svg>
+
+  <div class="top-alert">
+    <strong>Citação eletrônica:</strong> intimações e citações chegam pelo Domicílio Judicial Eletrônico, com prazo curto de confirmação. Você está de olho?
+  </div>
+
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="#topo" aria-label="Deena — início"><b>deena</b><small>Gestão Financeira Empresarial</small></a>
+      <nav class="nav-links" aria-label="Seções">
+        <a href="#problema">O problema</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#planos">Planos</a>
+        <a href="#contadores">Para contadores</a>
+        <a href="#faq">Dúvidas</a>
+      </nav>
+      <a class="btn btn-gold" href="#planos" data-track="nav_cta">Começar a monitorar</a>
+    </div>
+  </header>
+
+  <main id="topo">
+    <!-- 01 · HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">Monitoramento de CNPJ</span>
+          <h1>Saiba de um processo contra sua empresa <em>antes da citação oficial.</em></h1>
+          <p class="lead">A Deena rastreia os sistemas dos tribunais e avisa você assim que uma ação é distribuída contra o seu CNPJ — com dias preciosos de vantagem para organizar a defesa.</p>
+
+          <form class="cnpj-form" data-cnpj-form="hero" novalidate>
+            <label for="cnpj-hero">CNPJ da empresa</label>
+            <input id="cnpj-hero" name="cnpj" inputmode="numeric" autocomplete="off" placeholder="Digite o CNPJ" maxlength="18" required />
+            <button class="btn btn-gold" type="submit">Começar a monitorar <span class="arrow">→</span></button>
+          </form>
+          <p class="form-msg" role="alert" aria-live="polite"></p>
+          <div class="micro">
+            <span><svg width="16" height="16"><use href="#i-check"/></svg>Ativação em minutos</span>
+            <span><svg width="16" height="16"><use href="#i-check"/></svg>Alerta por WhatsApp e e-mail</span>
+            <span><svg width="16" height="16"><use href="#i-check"/></svg>Cancele quando quiser</span>
+          </div>
+        </div>
+
+        <div class="radar-card reveal" aria-label="Exemplo ilustrativo do painel de alertas">
+          <div class="radar-head">
+            <span class="live"><i class="dot"></i>Monitorando 24h</span>
+            <span class="tag">Exemplo ilustrativo</span>
+          </div>
+          <div class="radar-visual" aria-hidden="true">
+            <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i>
+            <i class="sweep"></i><i class="blip b1"></i><i class="blip b2"></i>
+          </div>
+          <div class="feed" id="feed">
+            <div class="alert-item">
+              <span class="ic"><svg width="18" height="18"><use href="#i-bell"/></svg></span>
+              <div><b>Nova ação distribuída</b><p>Ação de cobrança · 2ª Vara Cível · Valor da causa R$ 48.300,00</p></div>
+              <time>agora</time>
+            </div>
+            <div class="alert-item" style="animation-delay:.2s">
+              <span class="ic"><svg width="18" height="18"><use href="#i-doc"/></svg></span>
+              <div><b>Resumo descritivo pronto</b><p>Partes, pedido e andamento explicados em linguagem simples.</p></div>
+              <time>2 min</time>
+            </div>
+          </div>
+          <p class="radar-foot">Dados fictícios, apenas para demonstração.</p>
+          <div class="floating-chip" aria-hidden="true">
+            <svg width="22" height="22" style="color:var(--gold)"><use href="#i-clock"/></svg>
+            <div><strong>Antes da citação</strong>você já sabe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="strip">
+      <div class="wrap">
+        <div><svg width="26" height="26" style="color:var(--gold-2)"><use href="#i-radar"/></svg><span><b>24/7</b>monitoramento contínuo</span></div>
+        <div><svg width="26" height="26" style="color:var(--gold-2)"><use href="#i-bell"/></svg><span><b>Na distribuição</b>o alerta chega</span></div>
+        <div><svg width="26" height="26" style="color:var(--gold-2)"><use href="#i-doc"/></svg><span><b>Dados completos</b>partes, vara, valor</span></div>
+        <div><svg width="26" height="26" style="color:var(--gold-2)"><use href="#i-shield"/></svg><span><b>LGPD</b>dados protegidos</span></div>
+      </div>
+    </div>
+
+    <!-- 02 · VSL -->
+    <section class="vsl">
+      <div class="wrap reveal">
+        <span class="eyebrow">Assista em 2 minutos</span>
+        <h2>Por que a <em>citação eletrônica</em> mudou o jogo para as empresas</h2>
+        <div class="video" id="vsl">
+          <button class="play" type="button" aria-label="Assistir ao vídeo">
+            <span><svg width="34" height="34"><use href="#i-play"/></svg></span>
+          </button>
+          <div class="cap"><b>O processo começa antes de você saber.</b>Veja como ganhar esse tempo de volta.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · O PROBLEMA -->
+    <section class="problem" id="problema">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">O problema</span>
+          <h2>A citação agora chega por meio eletrônico, <em>ligada ao seu CNPJ.</em></h2>
+          <p class="lead">E o relógio começa a correr mesmo que ninguém na empresa abra a mensagem.</p>
+        </div>
+
+        <div class="p-grid">
+          <article class="p-card reveal">
+            <span class="n">01</span>
+            <h3>O que mudou</h3>
+            <p>Com o Domicílio Judicial Eletrônico, citações e intimações passaram a ser enviadas para uma caixa digital vinculada ao CNPJ — e não mais por carta ou oficial de justiça batendo à porta.</p>
+            <div class="hl">A notificação chega num sistema que pouca gente acompanha no dia a dia.</div>
+          </article>
+          <article class="p-card reveal">
+            <span class="n">02</span>
+            <h3>O risco de ninguém abrir</h3>
+            <p>Sócio viajando, financeiro sobrecarregado, acesso com quem saiu da empresa. A caixa fica sem dono — e a citação eletrônica precisa ser confirmada em poucos dias.</p>
+            <div class="hl">Sem confirmação no prazo, a empresa pode ser multada.</div>
+          </article>
+          <article class="p-card reveal">
+            <span class="n">03</span>
+            <h3>O que acontece com o prazo</h3>
+            <p>Intimações não abertas são consideradas lidas automaticamente após o prazo legal. O prazo processual começa a correr, e a empresa pode perder a chance de se defender a tempo.</p>
+            <div class="hl">Risco de revelia, bloqueios e prejuízo financeiro.</div>
+          </article>
+        </div>
+
+        <div class="timeline reveal" aria-label="Comparação de linha do tempo">
+          <h3>Os mesmos dias. Dois desfechos.</h3>
+          <p class="sub">Da distribuição da ação até o fim do prazo de defesa.</p>
+          <div class="tl-row">
+            <div class="who">Sem monitoramento<small>descobre tarde</small></div>
+            <div class="track"><span class="lost">Ação distribuída · ninguém sabe</span><span class="late">Correria · prazo apertado</span></div>
+          </div>
+          <div class="tl-row">
+            <div class="who" style="color:var(--gold-2)">Com a Deena<small>sabe na distribuição</small></div>
+            <div class="track"><span class="gain">Alerta Deena · tempo para se organizar</span><span class="calm">Defesa preparada</span></div>
+          </div>
+          <div class="tl-legend"><span>Distribuição</span><span>Citação</span><span>Fim do prazo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · COMO FUNCIONA -->
+    <section id="como-funciona">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">Como funciona</span>
+          <h2>Você cadastra o CNPJ. <em>A Deena vigia por você.</em></h2>
+          <p class="lead">Sem instalar nada, sem senha de tribunal, sem planilha. Em poucos minutos o monitoramento está ativo.</p>
+        </div>
+        <div class="steps">
+          <div class="step reveal"><span class="num">01</span><h3>Cadastre o CNPJ</h3><p>Informe o CNPJ da empresa e escolha o plano. Leva menos de 2 minutos.</p></div>
+          <div class="step reveal"><span class="num">02</span><h3>Monitoramento contínuo</h3><p>Rastreamos os sistemas dos tribunais e identificamos novos processos assim que são distribuídos.</p></div>
+          <div class="step reveal"><span class="num">03</span><h3>Alerta na distribuição</h3><p>Você recebe a notificação imediata com partes, tipo de ação, valor da causa e tribunal.</p></div>
+          <div class="step reveal"><span class="num">04</span><h3>Resumo descritivo</h3><p>No Premium, um resumo objetivo explica o que está em discussão, em linguagem simples.</p></div>
+        </div>
+        <div class="benefits">
+          <div class="benefit reveal"><svg width="28" height="28"><use href="#i-clock"/></svg><b>Agilidade</b><p>Antecipe-se e organize sua defesa antes mesmo de ser citado.</p></div>
+          <div class="benefit reveal"><svg width="28" height="28"><use href="#i-coin"/></svg><b>Economia</b><p>Evite condenações à revelia e reduza custos processuais.</p></div>
+          <div class="benefit reveal"><svg width="28" height="28"><use href="#i-shield"/></svg><b>Segurança</b><p>Menos risco de bloqueios judiciais, multas e prejuízos inesperados.</p></div>
+          <div class="benefit reveal"><svg width="28" height="28"><use href="#i-chess"/></svg><b>Gestão estratégica</b><p>Previsibilidade e informação para decisões mais seguras.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · PLANOS -->
+    <section class="plans" id="planos">
+      <div class="wrap">
+        <div class="plans-head reveal">
+          <div>
+            <span class="eyebrow">Planos</span>
+            <h2>Escolha o nível de <em>visão</em> sobre a sua empresa</h2>
+            <p class="lead">Todos os planos monitoram até 10 processos do seu CNPJ. Processos adicionais: R$ 10,00 cada.</p>
+          </div>
+          <div class="cnpj-chip" id="cnpj-chip">
+            <svg width="16" height="16"><use href="#i-check"/></svg>
+            <span>CNPJ <strong id="cnpj-chip-val"></strong> pronto para monitorar</span>
+            <button type="button" id="cnpj-chip-edit">trocar</button>
+          </div>
+        </div>
+
+        <div class="plan-grid">
+          <article class="plan reveal">
+            <h3>Essencial</h3>
+            <p class="tagline">Para quem precisa do básico e direto ao ponto.</p>
+            <div class="price"><small>R$</small><b>200</b><small>/mês</small></div>
+            <p class="price-day">menos de R$ 7 por dia</p>
+            <ul>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Monitoramento contínuo do CNPJ</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Alerta na distribuição</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Nome das partes e número do processo</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Juízo, comarca e valor da causa</li>
+              <li class="off"><svg width="16" height="16"><use href="#i-x"/></svg>Cópia da petição inicial</li>
+              <li class="off"><svg width="16" height="16"><use href="#i-x"/></svg>Resumo descritivo do processo</li>
+            </ul>
+            <button class="btn btn-ghost" data-plan="essencial">Assinar Essencial</button>
+            <p class="exc">Excedente: R$ 10,00 por processo adicional</p>
+          </article>
+
+          <article class="plan reveal">
+            <h3>Estratégico</h3>
+            <p class="tagline">Mais segurança e transparência para sua empresa.</p>
+            <div class="price"><small>R$</small><b>400</b><small>/mês</small></div>
+            <p class="price-day">cerca de R$ 13 por dia</p>
+            <ul>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Tudo do Plano Essencial</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg><span><strong>Cópia da petição inicial</strong> — veja a ação já na origem</span></li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Análise completa do que foi pedido</li>
+              <li class="off"><svg width="16" height="16"><use href="#i-x"/></svg>Resumo descritivo do processo</li>
+              <li class="off"><svg width="16" height="16"><use href="#i-x"/></svg>Ponte com escritório parceiro</li>
+            </ul>
+            <button class="btn btn-ghost" data-plan="estrategico">Assinar Estratégico</button>
+            <p class="exc">Excedente: R$ 10,00 por processo adicional</p>
+          </article>
+
+          <article class="plan featured reveal">
+            <span class="badge">Mais completo</span>
+            <h3>Premium</h3>
+            <p class="tagline">Compreensão completa e visão estratégica de cada processo.</p>
+            <div class="price"><small>R$</small><b>600</b><small>/mês</small></div>
+            <p class="price-day">cerca de R$ 20 por dia</p>
+            <ul>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Tudo do Plano Estratégico</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg><span><strong>Resumo descritivo</strong> explicando, de forma objetiva, o que está em discussão</span></li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg>Ideal para gestores que querem entender o impacto de cada processo</li>
+              <li><svg width="16" height="16"><use href="#i-check"/></svg><span>Opção de <strong>conversar com um escritório parceiro</strong>, só se você quiser</span></li>
+            </ul>
+            <button class="btn btn-gold" data-plan="premium">Assinar Premium <span class="arrow">→</span></button>
+            <button class="btn btn-ghost partner-btn" type="button" data-partner="plano-premium">Quero conversar com um escritório parceiro</button>
+            <p class="exc">Excedente: R$ 10,00 por processo adicional</p>
+          </article>
+        </div>
+
+        <div class="plans-note">
+          <span><svg width="16" height="16"><use href="#i-lock"/></svg>Pagamento seguro no cartão de crédito</span>
+          <span><svg width="16" height="16"><use href="#i-shield"/></svg>Dados tratados conforme a LGPD</span>
+          <span><svg width="16" height="16"><use href="#i-check"/></svg>Cancele quando quiser</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 · PARA CONTADORES -->
+    <section class="acc" id="contadores">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">Para contadores</span>
+          <h2>Monitore a <em>carteira inteira</em> dos seus clientes</h2>
+          <p class="lead">Seja o primeiro a saber quando um cliente vira réu — e transforme isso em um serviço de valor para o seu escritório contábil.</p>
+          <ul>
+            <li><svg width="20" height="20"><use href="#i-users"/></svg><span><strong>Vários CNPJs, um só painel.</strong> Condições especiais por volume de clientes.</span></li>
+            <li><svg width="20" height="20"><use href="#i-bell"/></svg><span><strong>Alerta antes do susto.</strong> Você avisa o cliente antes que o problema chegue ao financeiro.</span></li>
+            <li><svg width="20" height="20"><use href="#i-coin"/></svg><span><strong>Nova receita recorrente.</strong> Ofereça o monitoramento como serviço agregado da sua contabilidade.</span></li>
+          </ul>
+        </div>
+        <form class="card-form reveal" id="form-contadores" novalidate>
+          <h3>Quero ser parceiro</h3>
+          <p class="sub">Nossa equipe retorna em até 1 dia útil com a proposta para a sua carteira.</p>
+          <div class="field"><label for="c-nome">Seu nome</label><input id="c-nome" name="nome" autocomplete="name" required /></div>
+          <div class="field"><label for="c-esc">Escritório contábil</label><input id="c-esc" name="escritorio" autocomplete="organization" /></div>
+          <div class="row-2">
+            <div class="field"><label for="c-email">E-mail</label><input id="c-email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="c-wpp">WhatsApp</label><input id="c-wpp" name="whatsapp" inputmode="tel" autocomplete="tel" data-mask="tel" required /></div>
+          </div>
+          <div class="field">
+            <label for="c-cart">Quantos CNPJs na carteira?</label>
+            <select id="c-cart" name="carteira">
+              <option>Até 20</option><option>21 a 50</option><option>51 a 150</option><option>Mais de 150</option>
+            </select>
+          </div>
+          <label class="check"><input type="checkbox" name="lgpd" required /><span>Autorizo a Deena a entrar em contato e tratar meus dados conforme a <a href="/privacidade" target="_blank">Política de Privacidade</a>.</span></label>
+          <button class="btn btn-dark" type="submit">Quero a proposta para contadores</button>
+          <p class="msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- TRANSPARÊNCIA (Observações importantes) -->
+    <section id="transparencia">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">Transparência</span>
+          <h2>O que a Deena <em>faz</em> — e o que não faz</h2>
+          <p class="lead">Somos um sistema de monitoramento. Clareza aqui evita surpresa lá na frente.</p>
+        </div>
+        <div class="clear-grid">
+          <div class="clear-box yes reveal">
+            <h3><svg width="22" height="22"><use href="#i-check"/></svg>Faz</h3>
+            <ul>
+              <li><svg width="14" height="14"><use href="#i-check"/></svg>Identifica processos judiciais distribuídos contra o seu CNPJ</li>
+              <li><svg width="14" height="14"><use href="#i-check"/></svg>Repassa as informações do processo de forma clara e rápida</li>
+              <li><svg width="14" height="14"><use href="#i-check"/></svg>Entrega resumo descritivo do andamento (Premium)</li>
+            </ul>
+          </div>
+          <div class="clear-box no reveal">
+            <h3><svg width="22" height="22"><use href="#i-x"/></svg>Não faz</h3>
+            <ul>
+              <li><svg width="14" height="14"><use href="#i-x"/></svg>Não inclui processos em segredo de justiça</li>
+              <li><svg width="14" height="14"><use href="#i-x"/></svg>Não faz acompanhamento processual nem defesa jurídica</li>
+              <li><svg width="14" height="14"><use href="#i-x"/></svg>Não emite parecer jurídico nem substitui um advogado</li>
+            </ul>
+          </div>
+        </div>
+        <p class="notice reveal">Após receber as informações, cabe à empresa decidir os próximos passos e, se quiser, contratar um advogado de sua confiança. Assinantes Premium podem, por iniciativa própria, pedir o contato de um escritório parceiro.</p>
+      </div>
+    </section>
+
+    <!-- 07 · FAQ -->
+    <section id="faq" style="padding-top:0">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="eyebrow">Dúvidas frequentes</span>
+          <h2>Perguntas que todo empresário faz</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>O que é o Domicílio Judicial Eletrônico?</summary>
+            <p>É a plataforma do Conselho Nacional de Justiça (CNJ) que centraliza as comunicações processuais — como citações e intimações — enviadas pelos tribunais às empresas, vinculadas ao CNPJ.</p>
+          </details>
+          <details>
+            <summary>Minha empresa precisa ter se cadastrado no Domicílio?</summary>
+            <p>O cadastro é obrigatório para empresas públicas e privadas. Micro e pequenas empresas com endereço eletrônico na Redesim podem ser cadastradas automaticamente. Mesmo cadastrada, a empresa precisa acompanhar a caixa com frequência — é aí que a Deena ajuda, avisando já na distribuição da ação.</p>
+          </details>
+          <details>
+            <summary>O que eu recebo no alerta?</summary>
+            <p>Nome das partes, número do processo, juízo, comarca, tipo de ação e valor da causa. No Estratégico, também a cópia da petição inicial; no Premium, um resumo descritivo explicando de forma objetiva o que está em discussão.</p>
+          </details>
+          <details>
+            <summary>Em quanto tempo fico sabendo de um processo novo?</summary>
+            <p>O monitoramento é contínuo: identificamos novos processos tão logo são distribuídos nos sistemas dos tribunais e enviamos a notificação imediatamente — normalmente antes da citação oficial.</p>
+          </details>
+          <details>
+            <summary>Posso cancelar quando quiser?</summary>
+            <p>Sim. A assinatura é mensal e pode ser cancelada a qualquer momento, sem multa. O monitoramento segue ativo até o fim do período já pago.</p>
+          </details>
+          <details>
+            <summary>A Deena é um escritório de advocacia?</summary>
+            <p>Não. A Deena é um sistema de monitoramento e não presta consultoria nem emite parecer jurídico. Se você quiser, no plano Premium pode pedir para conversar com um escritório parceiro — o contato só acontece com a sua autorização.</p>
+          </details>
+          <details>
+            <summary>E se minha empresa tiver mais de 10 processos?</summary>
+            <p>Cada processo adicional custa R$ 10,00 no mês, em qualquer plano. Você só paga o excedente se ele existir.</p>
+          </details>
+          <details>
+            <summary>Meus dados estão seguros?</summary>
+            <p>Sim. Tratamos os dados conforme a LGPD, apenas para prestar o serviço. O pagamento é processado em ambiente seguro do gateway, sem que os dados do cartão passem pelos nossos servidores.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="final">
+      <div class="wrap reveal">
+        <span class="eyebrow">Comece hoje</span>
+        <h2>O próximo processo pode já ter sido distribuído. <em>Você quer saber agora ou depois?</em></h2>
+        <p class="lead">Ative o monitoramento do seu CNPJ em menos de 2 minutos.</p>
+        <form class="cnpj-form" data-cnpj-form="final" novalidate>
+          <label for="cnpj-final">CNPJ da empresa</label>
+          <input id="cnpj-final" name="cnpj" inputmode="numeric" autocomplete="off" placeholder="Digite o CNPJ" maxlength="18" required />
+          <button class="btn btn-gold" type="submit">Começar a monitorar <span class="arrow">→</span></button>
+        </form>
+        <p class="form-msg" role="alert" aria-live="polite" style="text-align:center;margin-left:0"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 09 · RODAPÉ DO SISTEMA -->
+  <footer>
+    <div class="wrap">
+      <div>
+        <a class="logo" href="#topo"><b>deena</b><small>Gestão Financeira Empresarial</small></a>
+        <p style="margin-top:14px;max-width:420px">Sistema de monitoramento de processos judiciais vinculados a CNPJ.</p>
+      </div>
+      <nav aria-label="Rodapé">
+        <a href="/termos">Termos de Uso</a>
+        <a href="/privacidade">Política de Privacidade</a>
+        <a href="#faq">Dúvidas</a>
+      </nav>
+      <p class="legal">
+        Deena Gestão Financeira Empresarial · CNPJ 00.000.000/0001-00 · © <span id="ano"></span>.<br />
+        A Deena é um sistema de monitoramento e não é escritório de advocacia. Não presta consultoria jurídica, não emite parecer e não substitui a atuação de um advogado. O serviço limita-se à identificação e ao repasse de informações de processos judiciais públicos; processos em segredo de justiça não são incluídos.
+      </p>
+    </div>
+  </footer>
+
+  <div class="sticky-cta" id="sticky-cta"><a class="btn btn-gold" href="#planos">Monitorar meu CNPJ →</a></div>
+
+  <!-- Modal: varredura do CNPJ -->
+  <div class="modal" id="m-scan" role="dialog" aria-modal="true" aria-labelledby="scan-title">
+    <div class="sheet">
+      <button class="x" type="button" data-close aria-label="Fechar">×</button>
+      <h3 id="scan-title">Preparando o monitoramento</h3>
+      <p class="sub">CNPJ <strong id="scan-cnpj"></strong></p>
+      <ul class="scan-list">
+        <li data-s="1"><span class="st"></span>Validando o CNPJ</li>
+        <li data-s="2"><span class="st"></span>Consultando dados públicos da empresa</li>
+        <li data-s="3"><span class="st"></span>Conectando ao radar dos tribunais</li>
+      </ul>
+      <div class="company" id="scan-company">
+        <small>Empresa encontrada</small>
+        <b id="scan-razao"></b>
+        <span id="scan-meta"></span>
+      </div>
+      <button class="btn btn-gold" type="button" id="scan-go" disabled>Escolher meu plano →</button>
+    </div>
+  </div>
+
+  <!-- Modal: checkout (08) -->
+  <div class="modal" id="m-checkout" role="dialog" aria-modal="true" aria-labelledby="co-title">
+    <form class="sheet" id="form-checkout" novalidate>
+      <button class="x" type="button" data-close aria-label="Fechar">×</button>
+      <h3 id="co-title">Ativar monitoramento</h3>
+      <p class="sub">Último passo. Depois é com a gente.</p>
+      <div class="plan-switch" role="tablist" aria-label="Plano">
+        <button type="button" data-switch="essencial">Essencial</button>
+        <button type="button" data-switch="estrategico">Estratégico</button>
+        <button type="button" data-switch="premium">Premium</button>
+      </div>
+      <div class="summary">
+        <div><small>Plano</small><b id="co-plan">Premium</b></div>
+        <div class="val"><small>Mensal</small><b id="co-price">R$ 600</b></div>
+      </div>
+      <div class="field"><label for="co-cnpj">CNPJ a monitorar</label><input id="co-cnpj" name="cnpj" inputmode="numeric" data-mask="cnpj" maxlength="18" required /></div>
+      <div class="field"><label for="co-nome">Nome completo</label><input id="co-nome" name="nome" autocomplete="name" required /></div>
+      <div class="row-2">
+        <div class="field"><label for="co-email">E-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="field"><label for="co-wpp">WhatsApp (alertas)</label><input id="co-wpp" name="whatsapp" inputmode="tel" autocomplete="tel" data-mask="tel" required /></div>
+      </div>
+      <div class="partner-opt" id="co-partner-wrap" hidden>
+        <label class="check"><input type="checkbox" name="contatoParceiro" /><span>Quero conversar com um escritório parceiro. <em>(Opcional — o contato só acontece com esta autorização.)</em></span></label>
+      </div>
+      <label class="check"><input type="checkbox" name="lgpd" required /><span>Autorizo o tratamento dos meus dados para a prestação do serviço, conforme a <a href="/privacidade" target="_blank">Política de Privacidade</a> (LGPD).</span></label>
+      <label class="check"><input type="checkbox" name="termos" required /><span>Li e aceito os <a href="/termos" target="_blank">Termos de Uso</a>.</span></label>
+      <button class="btn btn-gold" type="submit">Ir para o pagamento seguro <span class="arrow">→</span></button>
+      <p class="msg" role="alert" aria-live="polite"></p>
+      <div class="pay-row">
+        <span><svg width="14" height="14" style="display:inline;vertical-align:-2px"><use href="#i-lock"/></svg> Cartão de crédito · ambiente seguro</span>
+        <span class="cards"><i>VISA</i><i>MASTER</i><i>ELO</i><i>AMEX</i></span>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal: escritório parceiro (opt-in) -->
+  <div class="modal" id="m-partner" role="dialog" aria-modal="true" aria-labelledby="pt-title">
+    <form class="sheet" id="form-partner" novalidate>
+      <button class="x" type="button" data-close aria-label="Fechar">×</button>
+      <h3 id="pt-title">Conversar com um escritório parceiro</h3>
+      <p class="sub">Benefício exclusivo do plano Premium. A Deena não presta serviço jurídico: aqui você apenas pede, por iniciativa própria, que um escritório parceiro entre em contato.</p>
+      <label class="check" style="color:var(--ink)"><input type="checkbox" name="consentimento" required /><span>Autorizo que um escritório parceiro entre em contato comigo sobre os processos identificados.</span></label>
+      <button class="btn btn-dark" type="submit">Assinar Premium com contato do parceiro</button>
+      <p class="msg" role="alert" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
