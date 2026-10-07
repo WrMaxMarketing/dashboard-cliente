@@ -48,7 +48,7 @@ export function AlertsBell({ alerts }: { alerts: Alert[] }) {
         <div
           role="dialog"
           aria-label="Alertas"
-          className="t-card absolute right-0 top-11 z-40 w-[min(88vw,360px)] p-2"
+          className="t-card fixed inset-x-4 top-[calc(env(safe-area-inset-top)+64px)] z-40 p-2 sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-[360px]"
           style={{ background: "var(--t-raised)" }}
         >
           <p className="t-eyebrow px-2 pb-1 pt-1">Alertas</p>
