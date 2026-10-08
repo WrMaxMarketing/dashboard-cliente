@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="pt-BR" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Forno Paulista — Combo Terça e Quinta</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      /* Mesmas famílias da arte original: Montserrat (PROMOÇÃO), Marcellus (serifa),
+         Oswald (Tamanho G / preço) e Quicksand (ingredientes). */
+      @font-face {
+        font-family: "Montserrat";
+        font-weight: 900;
+        src: url("assets/fonts/montserrat-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Marcellus";
+        font-weight: 400;
+        src: url("assets/fonts/marcellus-latin-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Oswald";
+        font-weight: 600;
+        src: url("assets/fonts/oswald-latin-600-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Oswald";
+        font-weight: 700;
+        src: url("assets/fonts/oswald-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Quicksand";
+        font-weight: 500;
+        src: url("assets/fonts/quicksand-latin-500-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Quicksand";
+        font-weight: 700;
+        src: url("assets/fonts/quicksand-latin-700-normal.woff2") format("woff2");
+      }
+
+      :root {
+        --red: #872620;
+        --red-deep: #5e1512;
+        --red-ink: #9e1c22;
+        --coke: #e41b23;
+        --cream: #f4f1e9;
+        --brown: #3b2418;
+        --gold: #f6c453;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--red);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Quicksand", sans-serif;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- fundo ---------- */
+      #bg {
+        background: radial-gradient(120% 80% at 50% 40%, #9a2e26 0%, var(--red) 45%, var(--red-deep) 100%);
+      }
+      .grain {
+        position: absolute;
+        inset: -60px;
+        background: url("assets/img/grain.png");
+        opacity: 0.09;
+        mix-blend-mode: overlay;
+      }
+      .rays {
+        position: absolute;
+        left: -460px;
+        top: 360px;
+        width: 2000px;
+        height: 2000px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(rgba(255, 220, 160, 0.07) 0deg 7deg, rgba(255, 220, 160, 0) 7deg 18deg);
+        opacity: 0;
+      }
+      .glow {
+        position: absolute;
+        left: 140px;
+        top: 760px;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 190, 110, 0.32) 0%, rgba(255, 190, 110, 0) 65%);
+        opacity: 0;
+      }
+      .leaf {
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        background: url("assets/img/leaf.png") center / contain no-repeat;
+      }
+      #leaf-a {
+        left: -40px;
+        top: -30px;
+      }
+      #leaf-b {
+        right: -40px;
+        top: -10px;
+        width: 220px;
+        height: 220px;
+      }
+      #leaf-c {
+        left: -80px;
+        top: 1640px;
+        width: 300px;
+        height: 300px;
+      }
+      #leaf-d {
+        right: -50px;
+        top: 1720px;
+        width: 240px;
+        height: 240px;
+      }
+      .spark {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 236, 200, 0.75);
+        box-shadow: 0 0 14px rgba(255, 210, 140, 0.9);
+      }
+
+      /* ---------- cabeçalho ---------- */
+      #logo {
+        position: absolute;
+        left: 400px;
+        top: 60px;
+        width: 280px;
+        height: 164px;
+        background: url("assets/img/logo.png") center / contain no-repeat;
+      }
+      #promo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 246px;
+        display: flex;
+        justify-content: center;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        font-size: 142px;
+        line-height: 1;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+      #promo .ch {
+        display: inline-block;
+      }
+      #days-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 404px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+      }
+      #days {
+        display: block;
+        font-family: "Marcellus", serif;
+        font-size: 84px;
+        line-height: 1.15;
+        color: #fff;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+      }
+
+      /* ---------- selo da intro ---------- */
+      #stamp {
+        position: absolute;
+        left: 280px;
+        top: 760px;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: var(--gold);
+        box-shadow: 0 0 0 14px rgba(246, 196, 83, 0.35), 0 30px 60px rgba(40, 6, 4, 0.45);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--red-deep);
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+      }
+      #stamp .s-top {
+        display: block;
+        font-size: 56px;
+        letter-spacing: 0.08em;
+      }
+      #stamp .s-mid {
+        display: block;
+        font-family: "Marcellus", serif;
+        font-weight: 400;
+        font-size: 52px;
+        margin: 14px 0 10px;
+      }
+      #stamp .s-plus {
+        display: block;
+        font-size: 120px;
+        color: var(--coke);
+      }
+      #stamp .s-bottom {
+        display: block;
+        font-family: "Marcellus", serif;
+        font-weight: 400;
+        font-size: 50px;
+        margin-top: 6px;
+      }
+
+      /* ---------- cena do combo ---------- */
+      .card {
+        position: absolute;
+        left: 60px;
+        top: 590px;
+        width: 960px;
+        height: 600px;
+        padding: 38px 56px 30px;
+        border-radius: 44px;
+        background: var(--cream);
+        box-shadow: 0 30px 60px rgba(40, 6, 4, 0.35);
+      }
+      .card-inner {
+        width: 650px;
+        display: flex;
+        flex-direction: column;
+      }
+      .title-line {
+        display: block;
+        overflow: hidden;
+        height: 76px;
+      }
+      .title-line span {
+        display: block;
+        font-family: "Marcellus", serif;
+        font-size: 66px;
+        line-height: 1.15;
+        color: var(--red-ink);
+        white-space: nowrap;
+      }
+      .title-line .plus {
+        display: inline-block;
+        color: var(--coke);
+      }
+      .size-row {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-top: 12px;
+      }
+      .size {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 40px;
+        color: var(--red-ink);
+        white-space: nowrap;
+      }
+      .rule {
+        display: block;
+        flex: 1;
+        height: 4px;
+        background: var(--red-ink);
+        border-radius: 2px;
+        transform-origin: left center;
+      }
+      .ingredients {
+        margin-top: 10px;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 500;
+        font-size: 28px;
+        line-height: 1.32;
+        color: var(--red-ink);
+      }
+      .ingredients .ing {
+        display: inline-block;
+        margin-right: 7px;
+      }
+      #combo-tag {
+        position: absolute;
+        right: 270px;
+        top: -30px;
+        padding: 8px 22px;
+        border-radius: 999px;
+        background: var(--coke);
+        color: #fff;
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 34px;
+        letter-spacing: 0.1em;
+        box-shadow: 0 10px 24px rgba(94, 21, 18, 0.4);
+      }
+
+      /* ---------- preço ---------- */
+      .price {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        color: var(--brown);
+        line-height: 1;
+      }
+      #c-price {
+        margin-top: 8px;
+      }
+      .price .cur {
+        font-size: 60px;
+        margin-top: 98px;
+        margin-right: 8px;
+      }
+      .price .int {
+        font-size: 176px;
+        display: flex;
+      }
+      .price .cents {
+        font-size: 70px;
+        margin-top: 94px;
+      }
+      .price-burst {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 440px;
+        height: 440px;
+        margin-left: -220px;
+        margin-top: -220px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(rgba(246, 196, 83, 0.55) 0deg 10deg, rgba(246, 196, 83, 0) 10deg 20deg);
+        -webkit-mask: radial-gradient(circle, #000 0%, #000 30%, transparent 68%);
+        mask: radial-gradient(circle, #000 0%, #000 30%, transparent 68%);
+        opacity: 0;
+      }
+      .odo {
+        position: relative;
+        display: inline-block;
+        height: 1.02em;
+        margin: 0 -0.015em;
+        overflow: hidden;
+      }
+      .odo .sizer {
+        visibility: hidden;
+        display: block;
+      }
+      .odo .strip {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .odo .strip span {
+        display: block;
+        height: 1.02em;
+      }
+
+      /* ---------- produtos ---------- */
+      .pizza {
+        position: absolute;
+        background: url("assets/img/pizza-calabresa.png") center / contain no-repeat;
+        filter: drop-shadow(0 34px 40px rgba(40, 6, 4, 0.55));
+      }
+      #c-pizza {
+        left: 440px;
+        top: 1160px;
+        width: 610px;
+        height: 452px;
+      }
+      .coca {
+        position: absolute;
+        background: url("assets/img/coca.png") center / contain no-repeat;
+        filter: drop-shadow(0 26px 30px rgba(40, 6, 4, 0.5));
+      }
+      #c-coca {
+        left: 790px;
+        top: 660px;
+        width: 236px;
+        height: 541px;
+      }
+      .bubble {
+        position: absolute;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      /* ---------- CTA ---------- */
+      .cta {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        border-radius: 999px;
+        overflow: hidden;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+      #cta-mini {
+        left: 230px;
+        top: 1650px;
+        width: 620px;
+        height: 116px;
+        background: var(--gold);
+        color: var(--red-deep);
+        font-size: 52px;
+        box-shadow: 0 16px 36px rgba(40, 6, 4, 0.45);
+      }
+      .cta .arrow {
+        display: block;
+        width: 54px;
+        height: 54px;
+      }
+      .cta .sweep {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        width: 140px;
+        height: 260px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%);
+      }
+      .cta .label {
+        display: block;
+        position: relative;
+      }
+
+      /* ---------- final ---------- */
+      #f-pizza {
+        left: -40px;
+        top: 590px;
+        width: 720px;
+        height: 534px;
+      }
+      #f-coca {
+        left: 720px;
+        top: 540px;
+        width: 260px;
+        height: 596px;
+      }
+      #f-plus {
+        position: absolute;
+        left: 610px;
+        top: 720px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: var(--red-deep);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 110px;
+        line-height: 1;
+        box-shadow: 0 14px 30px rgba(40, 6, 4, 0.45);
+      }
+      #f-kicker {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1126px;
+        text-align: center;
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        font-size: 54px;
+        letter-spacing: 0.08em;
+        color: var(--cream);
+      }
+      #f-price-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1188px;
+        display: flex;
+        justify-content: center;
+      }
+      #f-price {
+        color: #fff;
+        text-shadow: 0 10px 0 rgba(94, 21, 18, 0.55), 0 0 60px rgba(246, 196, 83, 0.45);
+      }
+      #f-price .cur {
+        font-size: 92px;
+        margin-top: 130px;
+        margin-right: 14px;
+        color: var(--gold);
+      }
+      #f-price .int {
+        font-size: 300px;
+      }
+      #f-price .cents {
+        font-size: 112px;
+        margin-top: 124px;
+        color: var(--gold);
+      }
+      #f-burst {
+        width: 900px;
+        height: 900px;
+        margin-left: -450px;
+        margin-top: -450px;
+      }
+      #cta-big {
+        left: 110px;
+        top: 1536px;
+        width: 860px;
+        height: 170px;
+        background: var(--cream);
+        color: var(--red-ink);
+        font-size: 90px;
+        box-shadow: 0 22px 50px rgba(40, 6, 4, 0.55), 0 0 0 10px rgba(246, 196, 83, 0.9);
+      }
+      #cta-big .arrow {
+        width: 80px;
+        height: 80px;
+      }
+      #cta-ring {
+        position: absolute;
+        left: 110px;
+        top: 1536px;
+        width: 860px;
+        height: 170px;
+        border-radius: 999px;
+        border: 6px solid var(--gold);
+        opacity: 0;
+      }
+      #tap {
+        position: absolute;
+        left: 850px;
+        top: 1640px;
+        width: 140px;
+        height: 140px;
+      }
+      #tap-ripple {
+        position: absolute;
+        left: 822px;
+        top: 1600px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 6px solid #fff;
+        opacity: 0;
+      }
+      #f-tagline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1760px;
+        text-align: center;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 700;
+        font-size: 34px;
+        color: var(--cream);
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="15"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Fundo permanente -->
+      <div id="bg" class="clip" data-start="0" data-duration="15" data-track-index="0">
+        <div class="glow" id="glow"></div>
+        <div class="rays" id="rays"></div>
+        <div class="grain" id="grain"></div>
+        <div class="layer" id="sparks"></div>
+        <div class="leaf" id="leaf-a"></div>
+        <div class="leaf" id="leaf-b"></div>
+        <div class="leaf" id="leaf-c"></div>
+        <div class="leaf" id="leaf-d"></div>
+      </div>
+
+      <!-- Cabeçalho: logo + PROMOÇÃO + TERÇA E QUINTA -->
+      <div id="header" class="clip" data-start="0" data-duration="15" data-track-index="1">
+        <div class="layer" id="header-inner">
+          <div id="logo"></div>
+          <div id="promo" aria-label="PROMOÇÃO"></div>
+          <div id="days-wrap"><span id="days">TERÇA E QUINTA</span></div>
+        </div>
+      </div>
+
+      <!-- Selo da intro -->
+      <div id="intro" class="clip" data-start="0.9" data-duration="1.6" data-track-index="2">
+        <div class="layer" id="intro-inner">
+          <div id="stamp">
+            <span class="s-top">COMBO</span>
+            <span class="s-mid">Pizza G</span>
+            <span class="s-plus">+</span>
+            <span class="s-bottom">Coca-Cola 600ml</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Combo: Calabresa Especial + Coca-Cola 600ml -->
+      <div id="combo" class="clip" data-start="2.2" data-duration="8.8" data-track-index="3">
+        <div class="layer" id="combo-inner">
+          <div class="card" id="c-card">
+            <div class="card-inner">
+              <div class="title-line"><span id="t1">Calabresa Especial <b class="plus" id="t-plus">+</b></span></div>
+              <div class="title-line"><span id="t2">Coca-Cola 600ml</span></div>
+              <div class="size-row">
+                <span class="size">Tamanho G</span>
+                <span class="rule" id="c-rule"></span>
+              </div>
+              <div class="ingredients" id="c-ing">
+                <span class="ing">Molho de tomate especial,</span>
+                <span class="ing">muçarela, calabresa especial,</span>
+                <span class="ing">cebola, ervas frescas e orégano.</span>
+              </div>
+              <div class="price" id="c-price">
+                <div class="price-burst" id="c-burst"></div>
+                <span class="cur">R$</span>
+                <span class="int" data-value="60"></span>
+                <span class="cents">,90</span>
+              </div>
+            </div>
+            <div id="combo-tag">COMBO</div>
+          </div>
+          <div class="layer" id="bubbles"></div>
+          <div class="coca" id="c-coca"></div>
+          <div class="pizza" id="c-pizza"></div>
+        </div>
+      </div>
+
+      <!-- CTA compacto -->
+      <div id="mini" class="clip" data-start="3.4" data-duration="7.5" data-track-index="4">
+        <div class="layer" id="mini-inner">
+          <div class="cta" id="cta-mini">
+            <span class="label">PEÇA AGORA</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 5l7 7-7 7" /></svg>
+            <div class="sweep" id="mini-sweep" data-layout-allow-occlusion></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final: preço gigante + PEÇA AGORA -->
+      <div id="fin" class="clip" data-start="10.8" data-duration="4.2" data-track-index="5">
+        <div class="layer" id="fin-inner">
+          <div class="pizza" id="f-pizza"></div>
+          <div class="coca" id="f-coca"></div>
+          <div id="f-plus">+</div>
+          <div id="f-kicker">O COMBO SAI POR</div>
+          <div id="f-price-wrap">
+            <div class="price" id="f-price">
+              <div class="price-burst" id="f-burst"></div>
+              <span class="cur">R$</span>
+              <span class="int" data-value="60"></span>
+              <span class="cents">,90</span>
+            </div>
+          </div>
+          <div id="cta-ring"></div>
+          <div class="cta" id="cta-big">
+            <span class="label">PEÇA AGORA</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 5l7 7-7 7" /></svg>
+            <div class="sweep" id="big-sweep" data-layout-allow-occlusion></div>
+          </div>
+          <div id="tap-ripple"></div>
+          <svg id="tap" viewBox="0 0 64 64">
+            <path d="M24 30V12a5 5 0 0 1 10 0v14l11.5 1.7A6 6 0 0 1 50.6 34L48 50a8 8 0 0 1-7.9 6.8H30a8 8 0 0 1-6.4-3.2L13.4 40a5 5 0 0 1 7.6-6.4z" fill="#fff" stroke="#5e1512" stroke-width="3" stroke-linejoin="round" />
+          </svg>
+          <div id="f-tagline">Toda Terça e Quinta · Pizza G + Coca-Cola 600ml</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ---------- montagem determinística do DOM ----------
+        var promo = document.getElementById("promo");
+        "PROMOÇÃO".split("").forEach(function (c) {
+          var s = document.createElement("span");
+          s.className = "ch";
+          s.textContent = c;
+          promo.appendChild(s);
+        });
+
+        // Odômetros: cada dígito vira uma fita que rola até o valor final
+        document.querySelectorAll(".price .int").forEach(function (el) {
+          el.getAttribute("data-value").split("").forEach(function (d, i) {
+            var odo = document.createElement("span");
+            odo.className = "odo";
+            var sizer = document.createElement("span");
+            sizer.className = "sizer";
+            sizer.textContent = d;
+            odo.appendChild(sizer);
+            var strip = document.createElement("span");
+            strip.className = "strip";
+            // fita rolante: só a janela de 1 dígito fica visível (overflow intencional)
+            strip.setAttribute("data-layout-allow-overflow", "");
+            strip.setAttribute("data-layout-allow-occlusion", "");
+            var seq = [];
+            for (var l = 0; l <= i; l++) for (var n = 0; n < 10; n++) seq.push(n);
+            for (var k = 0; k <= Number(d); k++) seq.push(k);
+            seq.forEach(function (n) {
+              var s = document.createElement("span");
+              s.textContent = n;
+              s.setAttribute("data-layout-allow-overflow", "");
+              s.setAttribute("data-layout-allow-occlusion", "");
+              strip.appendChild(s);
+            });
+            strip.setAttribute("data-steps", String(seq.length));
+            odo.appendChild(strip);
+            el.appendChild(odo);
+          });
+        });
+
+        // PRNG semeado para partículas (render determinístico)
+        var seed = 20261008;
+        function rnd() {
+          seed = (seed * 1664525 + 1013904223) % 4294967296;
+          return seed / 4294967296;
+        }
+        var sparks = document.getElementById("sparks");
+        var sparkData = [];
+        for (var i = 0; i < 26; i++) {
+          var sp = document.createElement("div");
+          sp.className = "spark";
+          var size = 4 + rnd() * 9;
+          sp.style.width = size + "px";
+          sp.style.height = size + "px";
+          sp.style.left = Math.round(rnd() * 1060) + "px";
+          sp.style.top = Math.round(200 + rnd() * 1700) + "px";
+          sparks.appendChild(sp);
+          sparkData.push({ el: sp, drift: 120 + rnd() * 260, sway: (rnd() - 0.5) * 120, delay: rnd() * 2, alpha: 0.25 + rnd() * 0.6 });
+        }
+        // Bolhas de gás subindo da garrafa
+        var bubbles = document.getElementById("bubbles");
+        var bubbleData = [];
+        for (var j = 0; j < 18; j++) {
+          var bb = document.createElement("div");
+          bb.className = "bubble";
+          var bs = 10 + rnd() * 22;
+          bb.style.width = bs + "px";
+          bb.style.height = bs + "px";
+          bb.style.left = Math.round(800 + rnd() * 210) + "px";
+          bb.style.top = Math.round(760 + rnd() * 320) + "px";
+          bubbles.appendChild(bb);
+          bubbleData.push({ el: bb, rise: 180 + rnd() * 260, sway: (rnd() - 0.5) * 60, delay: rnd() * 1.6, dur: 1.4 + rnd() * 1.2 });
+        }
+
+        // ---------- timeline ----------
+        var tl = gsap.timeline({ paused: true });
+        var END = 15;
+
+        function rollPrice(scope, at, dur) {
+          scope.querySelectorAll(".odo .strip").forEach(function (strip, i) {
+            var steps = Number(strip.getAttribute("data-steps"));
+            tl.fromTo(strip, { yPercent: 0 }, { yPercent: -((steps - 1) / steps) * 100, duration: dur + i * 0.25, ease: "power3.out" }, at);
+          });
+        }
+
+        // Fundo vivo
+        tl.fromTo("#grain", { x: 0, y: 0 }, { x: -40, y: -60, duration: END, ease: "none" }, 0);
+        tl.fromTo("#leaf-a", { x: -120, y: -100, rotation: -30, opacity: 0 }, { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.4, ease: "power3.out" }, 0.1);
+        tl.fromTo("#leaf-b", { x: 140, y: -80, rotation: 25, opacity: 0 }, { x: 0, y: 0, rotation: 200, opacity: 0.9, duration: 1.4, ease: "power3.out" }, 0.3);
+        tl.fromTo("#leaf-c", { x: -140, y: 80, rotation: 40, opacity: 0 }, { x: 0, y: 0, rotation: 160, opacity: 1, duration: 1.6, ease: "power3.out" }, 0.2);
+        tl.fromTo("#leaf-d", { x: 140, y: 120, rotation: -20, opacity: 0 }, { x: 0, y: 0, rotation: 210, opacity: 0.95, duration: 1.6, ease: "power3.out" }, 0.35);
+        tl.to("#leaf-a", { y: 26, rotation: 8, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: 4 }, 1.55);
+        tl.to("#leaf-b", { y: 24, rotation: 190, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: 5 }, 1.75);
+        tl.to("#leaf-c", { y: -24, rotation: 172, duration: 2.8, ease: "sine.inOut", yoyo: true, repeat: 3 }, 1.85);
+        tl.to("#leaf-d", { y: 22, rotation: 198, duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: 4 }, 2.0);
+        sparkData.forEach(function (s) {
+          tl.fromTo(s.el, { y: 0, x: 0, opacity: 0 }, { y: -s.drift * 3, x: s.sway, opacity: s.alpha, duration: END - s.delay, ease: "none" }, s.delay);
+        });
+
+        // ---------- Intro (0 – 2.5s) ----------
+        tl.fromTo("#logo", { y: -60, scale: 0.6, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.7, ease: "back.out(2)" }, 0.05);
+        tl.fromTo(
+          "#promo .ch",
+          { yPercent: 120, scale: 2.4, opacity: 0, rotation: function (i) { return i % 2 ? 14 : -14; } },
+          { yPercent: 0, scale: 1, opacity: 1, rotation: 0, duration: 0.55, ease: "back.out(2.2)", stagger: 0.06 },
+          0.25
+        );
+        tl.fromTo("#days", { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "power4.out" }, 0.95);
+        tl.to("#promo", { scale: 1.06, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, 1.65);
+        tl.fromTo("#glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }, 1.4);
+        tl.fromTo("#stamp", { scale: 0, rotation: -200 }, { scale: 1, rotation: -8, duration: 0.7, ease: "back.out(1.8)" }, 0.95);
+        tl.fromTo("#stamp .s-plus", { scale: 1 }, { scale: 1.35, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 1.6);
+        tl.to("#stamp", { rotation: 6, scale: 1.06, duration: 0.45, ease: "sine.inOut" }, 1.65);
+        tl.to("#stamp", { scale: 0, rotation: 120, opacity: 0, duration: 0.35, ease: "power3.in" }, 2.12);
+
+        // ---------- Combo (2.2 – 11.0s) ----------
+        var combo = document.getElementById("combo");
+        tl.fromTo("#c-card", { x: -1100, rotation: -4 }, { x: 0, rotation: 0, duration: 0.8, ease: "expo.out" }, 2.25);
+        tl.fromTo("#t1", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, 2.75);
+        tl.fromTo("#c-pizza", { x: -900, y: 300, rotation: -60, scale: 0.6 }, { x: 0, y: 0, rotation: 0, scale: 1, duration: 1, ease: "power4.out" }, 2.85);
+        // a Coca cai do alto e quica no card
+        tl.fromTo("#c-coca", { y: -1300, rotation: 25 }, { y: 0, rotation: 0, duration: 0.9, ease: "bounce.out" }, 3.5);
+        tl.fromTo("#t-plus", { scale: 0, rotation: -180 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(3)" }, 3.7);
+        tl.fromTo("#t2", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, 3.85);
+        tl.fromTo("#c-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 4.2);
+        tl.fromTo("#c-ing .ing", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power2.out", stagger: 0.12 }, 4.3);
+        tl.fromTo("#c-price", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2.4)" }, 4.75);
+        rollPrice(combo, 4.75, 1.1);
+        tl.fromTo("#c-burst", { opacity: 0, rotation: 0, scale: 0.5 }, { opacity: 1, rotation: 160, scale: 1, duration: 5.4, ease: "power1.out" }, 5.0);
+        tl.to("#c-price", { scale: 1.12, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 6.05);
+        tl.fromTo("#combo-tag", { scale: 0, rotation: -30 }, { scale: 1, rotation: -6, duration: 0.5, ease: "back.out(3)" }, 6.4);
+        tl.to("#combo-tag", { rotation: 6, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 5 }, 6.9);
+        // vida: pizza flutua, garrafa balança e solta gás
+        tl.to("#c-pizza", { y: -16, rotation: 2, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, 3.9);
+        tl.to("#c-coca", { rotation: -5, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 5 }, 8.4);
+        tl.to("#c-price", { scale: 1.12, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 8.5);
+        bubbleData.forEach(function (b) {
+          tl.fromTo(b.el, { y: 0, x: 0, opacity: 0, scale: 0.4 }, { y: -b.rise, x: b.sway, opacity: 1, scale: 1, duration: b.dur, ease: "power1.out" }, 4.3 + b.delay);
+          tl.to(b.el, { opacity: 0, duration: 0.25, ease: "none" }, 4.3 + b.delay + b.dur);
+          tl.fromTo(b.el, { y: 0, x: 0, opacity: 0, scale: 0.4 }, { y: -b.rise, x: -b.sway, opacity: 1, scale: 1, duration: b.dur, ease: "power1.out", immediateRender: false }, 8.6 + b.delay * 0.5);
+          tl.to(b.el, { opacity: 0, duration: 0.25, ease: "none" }, 8.6 + b.delay * 0.5 + b.dur);
+        });
+        // saída
+        tl.to("#c-card", { y: -260, scale: 0.85, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.35);
+        tl.to("#c-pizza", { x: -500, scale: 0.7, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.4);
+        tl.to("#c-coca", { y: -300, rotation: 20, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.4);
+
+        // ---------- CTA compacto (3.4 – 10.9s) ----------
+        tl.fromTo("#cta-mini", { y: 200, scale: 0.6, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2)" }, 3.4);
+        tl.to("#cta-mini", { scale: 1.07, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: 7 }, 4.1);
+        tl.fromTo("#cta-mini .arrow", { x: 0 }, { x: 14, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 21 }, 4.0);
+        tl.fromTo("#mini-sweep", { x: -200 }, { x: 760, duration: 0.9, ease: "power2.inOut", repeat: 3, repeatDelay: 0.9 }, 4.3);
+        tl.to("#cta-mini", { y: 140, opacity: 0, duration: 0.35, ease: "power2.in" }, 10.5);
+
+        // ---------- Final (10.8 – 15s) ----------
+        var fin = document.getElementById("fin");
+        tl.fromTo("#rays", { opacity: 0, rotation: 0 }, { opacity: 1, rotation: 40, duration: 4.2, ease: "none" }, 10.8);
+        tl.to("#glow", { scale: 1.35, opacity: 1, duration: 1, ease: "power2.out" }, 10.8);
+        tl.fromTo("#f-pizza", { x: -760, rotation: -30 }, { x: 0, rotation: -5, duration: 0.8, ease: "power4.out" }, 10.8);
+        tl.fromTo("#f-coca", { y: -1200, rotation: -20 }, { y: 0, rotation: 6, duration: 0.85, ease: "bounce.out" }, 10.95);
+        tl.fromTo("#f-plus", { scale: 0, rotation: -180 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(3)" }, 11.3);
+        tl.to("#f-pizza", { y: -14, duration: 1, ease: "sine.inOut", yoyo: true, repeat: 2 }, 11.7);
+        tl.to("#f-coca", { y: 14, duration: 1, ease: "sine.inOut", yoyo: true, repeat: 2 }, 11.85);
+        tl.to("#f-plus", { scale: 1.15, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 5 }, 11.85);
+        tl.fromTo("#f-kicker", { y: 30, scaleX: 1.4, opacity: 0 }, { y: 0, scaleX: 1, opacity: 1, duration: 0.6, ease: "power3.out" }, 11.15);
+        tl.fromTo("#f-price", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, ease: "back.out(1.6)" }, 11.35);
+        rollPrice(fin, 11.35, 1.0);
+        tl.fromTo("#f-burst", { opacity: 0, scale: 0.4, rotation: 0 }, { opacity: 0.9, scale: 1, rotation: 90, duration: 3.6, ease: "power1.out" }, 11.4);
+        tl.to("#f-price", { scale: 1.08, duration: 0.22, ease: "power2.out", yoyo: true, repeat: 1 }, 12.45);
+        tl.fromTo("#cta-big", { y: 260, scale: 0.5, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.65, ease: "back.out(2.2)" }, 12.0);
+        tl.to("#cta-big", { scale: 1.06, duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 4 }, 12.75);
+        tl.fromTo("#cta-big .arrow", { x: 0 }, { x: 18, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 7 }, 12.6);
+        tl.fromTo("#big-sweep", { x: -220 }, { x: 1000, duration: 0.9, ease: "power2.inOut", repeat: 1, repeatDelay: 0.6 }, 12.65);
+        tl.fromTo("#cta-ring", { scale: 1, opacity: 0.9 }, { scale: 1.25, opacity: 0, duration: 0.9, ease: "power2.out", repeat: 2, repeatDelay: 0.2, immediateRender: false }, 12.7);
+        tl.fromTo("#tap", { x: 220, y: 220, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 13.0);
+        tl.to("#tap", { scale: 0.82, duration: 0.12, ease: "power2.in", yoyo: true, repeat: 1 }, 13.55);
+        tl.fromTo("#tap-ripple", { scale: 0.3, opacity: 1 }, { scale: 1.8, opacity: 0, duration: 0.6, ease: "power2.out", immediateRender: false }, 13.6);
+        tl.fromTo("#f-tagline", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 12.4);
+
+        window.__timelines["main"] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>
