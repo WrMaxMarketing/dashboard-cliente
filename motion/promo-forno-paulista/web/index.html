@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Forno Paulista — Promoção</title>
+    <style>
+      @font-face {
+        font-family: "Montserrat";
+        font-weight: 900;
+        src: url("fonts/montserrat-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Oswald";
+        font-weight: 700;
+        src: url("fonts/oswald-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Quicksand";
+        font-weight: 700;
+        src: url("fonts/quicksand-latin-700-normal.woff2") format("woff2");
+      }
+      :root {
+        --red: #872620;
+        --red-deep: #5e1512;
+        --red-ink: #9e1c22;
+        --cream: #f4f1e9;
+        --gold: #f6c453;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 16px;
+        background: radial-gradient(120% 90% at 50% 30%, #9a2e26, var(--red-deep));
+        color: var(--cream);
+        font-family: "Quicksand", system-ui, sans-serif;
+      }
+      .phone {
+        position: relative;
+        height: min(78vh, 900px);
+        aspect-ratio: 9 / 16;
+        max-width: 100%;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(20, 3, 2, 0.6), 0 0 0 6px rgba(244, 241, 233, 0.08);
+        cursor: pointer;
+      }
+      video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: var(--red);
+      }
+      /* Áreas clicáveis alinhadas aos botões "PEÇA AGORA" do vídeo (canvas 1080×1920) */
+      .hotspot {
+        position: absolute;
+        z-index: 2;
+        border-radius: 999px;
+        display: none;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .hotspot.on {
+        display: block;
+      }
+      .hotspot:hover,
+      .hotspot:focus-visible {
+        outline: none;
+        transform: scale(1.04);
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85), 0 0 40px rgba(246, 196, 83, 0.9);
+      }
+      #hs-mini {
+        left: 21.3%;
+        top: 81.56%;
+        width: 57.4%;
+        height: 6.04%;
+      }
+      #hs-big {
+        left: 10.19%;
+        top: 78.13%;
+        width: 79.63%;
+        height: 9.17%;
+      }
+      .paused-badge {
+        position: absolute;
+        left: 50%;
+        top: 3%;
+        display: none;
+        padding: 6px 16px;
+        border-radius: 999px;
+        background: rgba(30, 5, 4, 0.7);
+        font-family: "Oswald", sans-serif;
+        font-size: 16px;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+      .phone.paused .paused-badge {
+        display: flex;
+      }
+      .progress {
+        display: flex;
+        gap: 6px;
+        width: min(100%, 506px);
+      }
+      .progress span {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(244, 241, 233, 0.25);
+        overflow: hidden;
+      }
+      .progress i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--gold);
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      nav button {
+        font: 700 16px "Quicksand", sans-serif;
+        color: var(--cream);
+        background: rgba(244, 241, 233, 0.1);
+        border: 2px solid rgba(244, 241, 233, 0.35);
+        border-radius: 999px;
+        padding: 8px 18px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+      }
+      nav button:hover,
+      nav button.active {
+        background: var(--cream);
+        color: var(--red-ink);
+        border-color: var(--cream);
+      }
+      .order {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 30px;
+        border-radius: 999px;
+        background: var(--gold);
+        color: var(--red-deep);
+        font: 900 22px "Montserrat", sans-serif;
+        text-decoration: none;
+        box-shadow: 0 12px 30px rgba(20, 3, 2, 0.45);
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+      .order small {
+        font: 700 20px "Oswald", sans-serif;
+        opacity: 0.85;
+      }
+      .order:hover {
+        animation-play-state: paused;
+        transform: scale(1.06);
+      }
+      @keyframes pulse {
+        50% {
+          transform: scale(1.06);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .order {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone" id="phone" title="Clique para pausar / continuar">
+      <video id="v" src="promo.mp4" autoplay muted loop playsinline></video>
+      <a class="hotspot" id="hs-mini" target="_blank" rel="noopener" aria-label="Peça agora"></a>
+      <a class="hotspot" id="hs-big" target="_blank" rel="noopener" aria-label="Peça agora"></a>
+      <div class="paused-badge">PAUSADO · CLIQUE PARA CONTINUAR</div>
+    </div>
+
+    <div class="progress" aria-hidden="true">
+      <span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span>
+    </div>
+
+    <nav aria-label="Trechos da promoção">
+      <button data-at="0">Promoção</button>
+      <button data-at="2.4">Calabresa Especial</button>
+      <button data-at="6.7">Frango Especial</button>
+      <button data-at="11">R$ 45,90</button>
+    </nav>
+
+    <a class="order" id="order" target="_blank" rel="noopener">PEÇA AGORA <small>R$ 45,90</small></a>
+
+    <script>
+      var ORDER_URL = "__ORDER_URL__";
+      // Trechos do vídeo (segundos), iguais aos da composição HyperFrames
+      var CHAPTERS = [0, 2.2, 6.5, 10.8, 15];
+      var MINI = [3.8, 10.5]; // CTA compacto visível
+      var BIG = [12.0, 15.0]; // CTA grande visível
+
+      var v = document.getElementById("v");
+      var phone = document.getElementById("phone");
+      var mini = document.getElementById("hs-mini");
+      var big = document.getElementById("hs-big");
+      var bars = document.querySelectorAll(".progress i");
+      var chips = document.querySelectorAll("nav button");
+      [mini, big, document.getElementById("order")].forEach(function (a) {
+        a.href = ORDER_URL;
+        a.addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
+      });
+
+      function tick() {
+        var t = v.currentTime;
+        mini.classList.toggle("on", t >= MINI[0] && t < MINI[1]);
+        big.classList.toggle("on", t >= BIG[0] && t <= BIG[1]);
+        for (var i = 0; i < bars.length; i++) {
+          var a = CHAPTERS[i], b = CHAPTERS[i + 1];
+          var p = Math.max(0, Math.min(1, (t - a) / (b - a)));
+          bars[i].style.width = p * 100 + "%";
+          chips[i].classList.toggle("active", t >= a && t < b);
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      phone.addEventListener("click", function () {
+        if (v.paused) v.play();
+        else v.pause();
+      });
+      v.addEventListener("play", function () { phone.classList.remove("paused"); });
+      v.addEventListener("pause", function () { phone.classList.add("paused"); });
+
+      chips.forEach(function (c) {
+        c.addEventListener("click", function () {
+          v.currentTime = Number(c.dataset.at);
+          v.play();
+        });
+      });
+    </script>
+  </body>
+</html>
