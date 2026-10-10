@@ -6,7 +6,7 @@
     <title>Forno Paulista — Combo Terça e Quinta</title>
     <script src="assets/vendor/gsap.min.js"></script>
     <style>
-      /* Mesmas famílias da arte original: Montserrat (PROMOÇÃO), Marcellus (serifa),
+      /* Mesmas famílias da arte original: Montserrat (OFERTA ESPECIAL), Marcellus (serifa),
          Oswald (Tamanho G / preço) e Quicksand (ingredientes). */
       @font-face {
         font-family: "Montserrat";
@@ -146,22 +146,22 @@
       /* ---------- cabeçalho ---------- */
       #logo {
         position: absolute;
-        left: 400px;
-        top: 60px;
-        width: 280px;
-        height: 164px;
+        left: 395px;
+        top: 66px;
+        width: 290px;
+        height: 170px;
         background: url("assets/img/logo.png") center / contain no-repeat;
       }
       #promo {
         position: absolute;
         left: 0;
         right: 0;
-        top: 246px;
+        top: 258px;
         display: flex;
         justify-content: center;
         font-family: "Montserrat", sans-serif;
         font-weight: 900;
-        font-size: 142px;
+        font-size: 86px;
         line-height: 1;
         color: #fff;
         letter-spacing: -0.01em;
@@ -169,69 +169,82 @@
       #promo .ch {
         display: inline-block;
       }
-      #days-wrap {
+      #days-row {
         position: absolute;
         left: 0;
         right: 0;
-        top: 404px;
-        height: 100px;
+        top: 366px;
+        height: 84px;
         display: flex;
+        align-items: center;
         justify-content: center;
+        gap: 24px;
+      }
+      #dia {
+        display: block;
+        padding: 6px 26px 8px;
+        border-radius: 999px;
+        background: var(--gold);
+        color: var(--red-deep);
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        font-size: 50px;
+        line-height: 1.1;
+        white-space: nowrap;
+        box-shadow: 0 10px 24px rgba(40, 6, 4, 0.35);
+      }
+      #days-wrap {
+        display: block;
+        height: 84px;
         overflow: hidden;
       }
       #days {
         display: block;
         font-family: "Marcellus", serif;
-        font-size: 84px;
-        line-height: 1.15;
+        font-size: 62px;
+        line-height: 84px;
         color: #fff;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.05em;
         white-space: nowrap;
       }
 
-      /* ---------- selo da intro ---------- */
-      #stamp {
+      /* ---------- intro: pizza em destaque ---------- */
+      #i-pizza {
+        left: 90px;
+        top: 590px;
+        width: 900px;
+        height: 667px;
+        filter: drop-shadow(0 50px 60px rgba(40, 6, 4, 0.6));
+      }
+      #i-cap {
         position: absolute;
-        left: 280px;
-        top: 760px;
-        width: 520px;
-        height: 520px;
-        border-radius: 50%;
-        background: var(--gold);
-        box-shadow: 0 0 0 14px rgba(246, 196, 83, 0.35), 0 30px 60px rgba(40, 6, 4, 0.45);
+        left: 0;
+        right: 0;
+        top: 1300px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        color: var(--red-deep);
+        gap: 12px;
+      }
+      #i-name {
+        display: block;
+        font-family: "Marcellus", serif;
+        font-size: 88px;
+        line-height: 1.1;
+        color: #fff;
+        white-space: nowrap;
+        text-shadow: 0 6px 20px rgba(40, 6, 4, 0.5);
+      }
+      #i-size {
+        display: block;
+        padding: 6px 28px 8px;
+        border-radius: 999px;
+        border: 3px solid var(--gold);
+        color: var(--gold);
         font-family: "Oswald", sans-serif;
         font-weight: 700;
-        line-height: 1;
-        text-align: center;
-      }
-      #stamp .s-top {
-        display: block;
-        font-size: 56px;
-        letter-spacing: 0.08em;
-      }
-      #stamp .s-mid {
-        display: block;
-        font-family: "Marcellus", serif;
-        font-weight: 400;
-        font-size: 52px;
-        margin: 14px 0 10px;
-      }
-      #stamp .s-plus {
-        display: block;
-        font-size: 120px;
-        color: var(--coke);
-      }
-      #stamp .s-bottom {
-        display: block;
-        font-family: "Marcellus", serif;
-        font-weight: 400;
-        font-size: 50px;
-        margin-top: 6px;
+        font-size: 44px;
+        letter-spacing: 0.06em;
       }
 
       /* ---------- cena do combo ---------- */
@@ -395,14 +408,47 @@
       }
       .coca {
         position: absolute;
+      }
+      .coca-img {
+        position: absolute;
+        inset: 0;
         background: url("assets/img/coca.png") center / contain no-repeat;
-        filter: drop-shadow(0 26px 30px rgba(40, 6, 4, 0.5));
+        filter: drop-shadow(-10px 16px 14px rgba(50, 8, 5, 0.45)) drop-shadow(0 0 22px rgba(255, 190, 120, 0.18));
+      }
+      /* reflexo de luz que corre pela garrafa (mascarado pelo próprio PNG) */
+      .coca-shine {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        -webkit-mask: url("assets/img/coca.png") center / contain no-repeat;
+        mask: url("assets/img/coca.png") center / contain no-repeat;
+      }
+      .coca-shine i {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 248, 235, 0.55) 50%, rgba(255, 255, 255, 0) 100%);
+      }
+      /* sombra de contato no card */
+      .coca-ground {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(closest-side, rgba(60, 14, 8, 0.55), rgba(60, 14, 8, 0));
       }
       #c-coca {
-        left: 790px;
-        top: 660px;
-        width: 236px;
-        height: 541px;
+        left: 822px;
+        top: 606px;
+        width: 176px;
+        height: 576px;
+      }
+      #c-ground {
+        left: 770px;
+        top: 1150px;
+        width: 250px;
+        height: 54px;
       }
       .bubble {
         position: absolute;
@@ -460,10 +506,16 @@
         height: 534px;
       }
       #f-coca {
-        left: 720px;
-        top: 540px;
-        width: 260px;
-        height: 596px;
+        left: 760px;
+        top: 470px;
+        width: 200px;
+        height: 654px;
+      }
+      #f-ground {
+        left: 700px;
+        top: 1092px;
+        width: 320px;
+        height: 64px;
       }
       #f-plus {
         position: absolute;
@@ -603,23 +655,25 @@
         <div class="leaf" id="leaf-d"></div>
       </div>
 
-      <!-- Cabeçalho: logo + PROMOÇÃO + TERÇA E QUINTA -->
+      <!-- Cabeçalho: logo + OFERTA ESPECIAL + DO DIA · TERÇA E QUINTA -->
       <div id="header" class="clip" data-start="0" data-duration="15" data-track-index="1">
         <div class="layer" id="header-inner">
           <div id="logo"></div>
-          <div id="promo" aria-label="PROMOÇÃO"></div>
-          <div id="days-wrap"><span id="days">TERÇA E QUINTA</span></div>
+          <div id="promo" aria-label="OFERTA ESPECIAL"></div>
+          <div id="days-row">
+            <span id="dia">DO DIA</span>
+            <span id="days-wrap"><span id="days">TERÇA E QUINTA</span></span>
+          </div>
         </div>
       </div>
 
-      <!-- Selo da intro -->
-      <div id="intro" class="clip" data-start="0.9" data-duration="1.6" data-track-index="2">
+      <!-- Intro: a pizza em destaque logo no começo -->
+      <div id="intro" class="clip" data-start="0" data-duration="2.9" data-track-index="2">
         <div class="layer" id="intro-inner">
-          <div id="stamp">
-            <span class="s-top">COMBO</span>
-            <span class="s-mid">Pizza G</span>
-            <span class="s-plus">+</span>
-            <span class="s-bottom">Coca-Cola 600ml</span>
+          <div class="pizza" id="i-pizza"></div>
+          <div id="i-cap">
+            <span id="i-name">Calabresa Especial</span>
+            <span id="i-size">TAMANHO G</span>
           </div>
         </div>
       </div>
@@ -650,7 +704,11 @@
             <div id="combo-tag">COMBO</div>
           </div>
           <div class="layer" id="bubbles"></div>
-          <div class="coca" id="c-coca"></div>
+          <div class="coca-ground" id="c-ground"></div>
+          <div class="coca" id="c-coca">
+            <div class="coca-img"></div>
+            <div class="coca-shine"><i id="c-shine"></i></div>
+          </div>
           <div class="pizza" id="c-pizza"></div>
         </div>
       </div>
@@ -670,7 +728,11 @@
       <div id="fin" class="clip" data-start="10.8" data-duration="4.2" data-track-index="5">
         <div class="layer" id="fin-inner">
           <div class="pizza" id="f-pizza"></div>
-          <div class="coca" id="f-coca"></div>
+          <div class="coca-ground" id="f-ground"></div>
+          <div class="coca" id="f-coca">
+            <div class="coca-img"></div>
+            <div class="coca-shine"><i id="f-shine"></i></div>
+          </div>
           <div id="f-plus">+</div>
           <div id="f-kicker">O COMBO SAI POR</div>
           <div id="f-price-wrap">
@@ -700,10 +762,10 @@
       (function () {
         // ---------- montagem determinística do DOM ----------
         var promo = document.getElementById("promo");
-        "PROMOÇÃO".split("").forEach(function (c) {
+        "OFERTA ESPECIAL".split("").forEach(function (c) {
           var s = document.createElement("span");
           s.className = "ch";
-          s.textContent = c;
+          s.textContent = c === " " ? "\u00A0" : c;
           promo.appendChild(s);
         });
 
@@ -796,29 +858,39 @@
           tl.fromTo(s.el, { y: 0, x: 0, opacity: 0 }, { y: -s.drift * 3, x: s.sway, opacity: s.alpha, duration: END - s.delay, ease: "none" }, s.delay);
         });
 
-        // ---------- Intro (0 – 2.5s) ----------
+        // ---------- Intro (0 – 2.9s): a pizza abre o vídeo em destaque ----------
+        tl.fromTo("#i-pizza", { scale: 0.15, rotation: -140, y: 260, opacity: 0 }, { scale: 1, rotation: 0, y: 0, opacity: 1, duration: 1.0, ease: "back.out(1.3)" }, 0);
+        tl.fromTo("#rays", { opacity: 0, rotation: 0 }, { opacity: 1, rotation: 20, duration: 1.2, ease: "power2.out" }, 0);
+        tl.to("#rays", { opacity: 0, rotation: 30, duration: 0.9, ease: "power2.in" }, 1.9);
+        tl.to("#i-pizza", { scale: 1.05, rotation: 3, duration: 1.15, ease: "sine.inOut" }, 1.05);
+        tl.fromTo("#i-name", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.55);
+        tl.fromTo("#i-size", { scale: 0, rotation: -12 }, { scale: 1, rotation: 0, duration: 0.45, ease: "back.out(3)" }, 0.8);
+        tl.to("#i-cap", { y: -30, opacity: 0, duration: 0.25, ease: "power2.in" }, 2.05);
+        // a pizza "voa" até o lugar dela no card (handoff para #c-pizza)
+        tl.to("#i-pizza", { x: 205, y: 462.5, scale: 0.6778, rotation: 0, duration: 0.6, ease: "power3.inOut" }, 2.25);
+
         tl.fromTo("#logo", { y: -60, scale: 0.6, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.7, ease: "back.out(2)" }, 0.05);
         tl.fromTo(
           "#promo .ch",
           { yPercent: 120, scale: 2.4, opacity: 0, rotation: function (i) { return i % 2 ? 14 : -14; } },
-          { yPercent: 0, scale: 1, opacity: 1, rotation: 0, duration: 0.55, ease: "back.out(2.2)", stagger: 0.06 },
+          { yPercent: 0, scale: 1, opacity: 1, rotation: 0, duration: 0.55, ease: "back.out(2.2)", stagger: 0.05 },
           0.25
         );
-        tl.fromTo("#days", { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "power4.out" }, 0.95);
+        tl.fromTo("#dia", { scale: 0, rotation: -20 }, { scale: 1, rotation: -3, duration: 0.5, ease: "back.out(3)" }, 1.0);
+        tl.fromTo("#days", { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "power4.out" }, 1.1);
+        tl.to("#dia", { rotation: 3, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 15 }, 1.5);
         tl.to("#promo", { scale: 1.06, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, 1.65);
-        tl.fromTo("#glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }, 1.4);
-        tl.fromTo("#stamp", { scale: 0, rotation: -200 }, { scale: 1, rotation: -8, duration: 0.7, ease: "back.out(1.8)" }, 0.95);
-        tl.fromTo("#stamp .s-plus", { scale: 1 }, { scale: 1.35, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 1.6);
-        tl.to("#stamp", { rotation: 6, scale: 1.06, duration: 0.45, ease: "sine.inOut" }, 1.65);
-        tl.to("#stamp", { scale: 0, rotation: 120, opacity: 0, duration: 0.35, ease: "power3.in" }, 2.12);
+        tl.fromTo("#glow", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.out" }, 0.1);
 
         // ---------- Combo (2.2 – 11.0s) ----------
         var combo = document.getElementById("combo");
-        tl.fromTo("#c-card", { x: -1100, rotation: -4 }, { x: 0, rotation: 0, duration: 0.8, ease: "expo.out" }, 2.25);
-        tl.fromTo("#t1", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, 2.75);
-        tl.fromTo("#c-pizza", { x: -900, y: 300, rotation: -60, scale: 0.6 }, { x: 0, y: 0, rotation: 0, scale: 1, duration: 1, ease: "power4.out" }, 2.85);
-        // a Coca cai do alto e quica no card
+        tl.fromTo("#c-card", { x: -1100, rotation: -4 }, { x: 0, rotation: 0, duration: 0.8, ease: "expo.out" }, 2.45);
+        tl.fromTo("#t1", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, 2.95);
+        tl.fromTo("#c-pizza", { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, 2.82);
+        // a Coca cai do alto e quica no card; a sombra de contato acompanha
         tl.fromTo("#c-coca", { y: -1300, rotation: 25 }, { y: 0, rotation: 0, duration: 0.9, ease: "bounce.out" }, 3.5);
+        tl.fromTo("#c-ground", { scale: 0.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.9, ease: "bounce.out" }, 3.5);
+        tl.fromTo("#c-shine", { x: -120 }, { x: 260, duration: 0.8, ease: "power2.inOut", repeat: 2, repeatDelay: 1.6 }, 4.6);
         tl.fromTo("#t-plus", { scale: 0, rotation: -180 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(3)" }, 3.7);
         tl.fromTo("#t2", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: "power4.out" }, 3.85);
         tl.fromTo("#c-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 4.2);
@@ -843,6 +915,7 @@
         tl.to("#c-card", { y: -260, scale: 0.85, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.35);
         tl.to("#c-pizza", { x: -500, scale: 0.7, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.4);
         tl.to("#c-coca", { y: -300, rotation: 20, opacity: 0, duration: 0.5, ease: "power3.in" }, 10.4);
+        tl.to("#c-ground", { opacity: 0, duration: 0.3, ease: "none" }, 10.4);
 
         // ---------- CTA compacto (3.4 – 10.9s) ----------
         tl.fromTo("#cta-mini", { y: 200, scale: 0.6, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2)" }, 3.4);
@@ -853,10 +926,12 @@
 
         // ---------- Final (10.8 – 15s) ----------
         var fin = document.getElementById("fin");
-        tl.fromTo("#rays", { opacity: 0, rotation: 0 }, { opacity: 1, rotation: 40, duration: 4.2, ease: "none" }, 10.8);
+        tl.fromTo("#rays", { opacity: 0, rotation: 0 }, { opacity: 1, rotation: 40, duration: 4.2, ease: "none", immediateRender: false }, 10.8);
         tl.to("#glow", { scale: 1.35, opacity: 1, duration: 1, ease: "power2.out" }, 10.8);
         tl.fromTo("#f-pizza", { x: -760, rotation: -30 }, { x: 0, rotation: -5, duration: 0.8, ease: "power4.out" }, 10.8);
         tl.fromTo("#f-coca", { y: -1200, rotation: -20 }, { y: 0, rotation: 6, duration: 0.85, ease: "bounce.out" }, 10.95);
+        tl.fromTo("#f-ground", { scale: 0.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.85, ease: "bounce.out" }, 10.95);
+        tl.fromTo("#f-shine", { x: -140 }, { x: 300, duration: 0.8, ease: "power2.inOut", repeat: 1, repeatDelay: 1.2 }, 12.2);
         tl.fromTo("#f-plus", { scale: 0, rotation: -180 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(3)" }, 11.3);
         tl.to("#f-pizza", { y: -14, duration: 1, ease: "sine.inOut", yoyo: true, repeat: 2 }, 11.7);
         tl.to("#f-coca", { y: 14, duration: 1, ease: "sine.inOut", yoyo: true, repeat: 2 }, 11.85);
