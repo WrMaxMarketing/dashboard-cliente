@@ -1,0 +1,14 @@
+{
+  "name": "landing-romilto-pacheco",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Landing page do grupo exclusivo de bastidores do Dr. Romilto Pacheco",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
