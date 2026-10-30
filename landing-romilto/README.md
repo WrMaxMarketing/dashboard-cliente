@@ -26,7 +26,7 @@ Sem `GROUP_URL`, o botão mostra "Link do grupo em breve".
 ```
 server.js            servidor HTTP (estáticos, injeção do GROUP_URL, Range para vídeo)
 public/index.html    as duas laudas
-public/styles.css    estilo (preto cinematográfico, dourado, HUD de câmera)
+public/styles.css    estilo neuro-holográfico (azul-marinho, brilho azul/magenta, rede neural)
 public/assets/       fotos e vídeo do Drive do cliente, já otimizados
 ```
 
